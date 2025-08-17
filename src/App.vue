@@ -1,5 +1,3 @@
-src/App.vue
-
 <script setup lang="ts">
 import { ref } from 'vue'
 import CalendarView from './components/CalendarView.vue'
