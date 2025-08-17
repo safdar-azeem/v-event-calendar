@@ -54,8 +54,6 @@ const {
    setDraggingDisabled,
    isDraggingDisabled,
    isDragCreating,
-   cancelDragCreate,
-   timedEventLayouts,
    getEventHeight,
 } = useCalendarGrid(props, emit, cell)
 
@@ -139,7 +137,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
             <div class="week-grid-border relative overflow-hidden">
                <CurrentTimeIndicator v-if="cell.isToday" :top="topPosition" />
                <div
-                  v-for="(hourSlot, index) in hours"
+                  v-for="hourSlot in hours"
                   :key="`${cell.dateString}-${hourSlot.hour}`"
                   :class="getTimeSlotClass(hourSlot.hour)"
                   :style="{ height: `${getTimeSlotHeight(hourSlot.hour)}px` }"
@@ -180,7 +178,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                            }">
                            <CalendarEventComponent
                               :event="event"
-                              :layout="timedEventLayouts.get(cell.dateString)?.get(event.id)"
+                              :layout="cell.timedLayout?.get(event.id)"
                               :style="{ minHeight: `${getEventHeight(hourSlot.hour) - 4}px` }"
                               view="date"
                               :event-index="index"
