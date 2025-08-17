@@ -1,5 +1,7 @@
 import { computed, ref } from 'vue'
 import type { CalendarCell } from '../types'
+import { isEventAllDay } from '../utils/eventUtils'
+import { useCalendarEventDragCreate } from './useCalendarEventDragCreate'
 import {
    createEventFromDateTime,
    formatDisplayTime,
@@ -7,8 +9,6 @@ import {
    getEventStartTime,
    isEventMultiDay,
 } from '../utils/calendarDateUtils'
-import { useCalendarEventDragCreate } from './useCalendarEventDragCreate'
-import { isEventAllDay } from '../utils/eventUtils'
 
 export function useCalendarGrid(
    props: {
