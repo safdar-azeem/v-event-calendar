@@ -1,4 +1,5 @@
 import type { CalendarEvent } from '../types/index'
+import { isEventAllDay } from './eventUtils'
 
 export const formatDate = (date: Date): string => {
    const year = date.getFullYear()
@@ -72,12 +73,11 @@ export const getEventEndDate = (event: CalendarEvent): Date => {
 }
 
 export const getEventStartTime = (event: CalendarEvent): string | undefined => {
-   if (event.allDay) return undefined
    return extractTimeFromISO(event.start)
 }
 
 export const getEventEndTime = (event: CalendarEvent): string | undefined => {
-   if (event.allDay || !event.end) return undefined
+   if (!event.end) return undefined
    return extractTimeFromISO(event.end)
 }
 
@@ -229,9 +229,12 @@ export const filterEventsByDateRange = (
 
 export const sortEventsByTime = (events: CalendarEvent[]): CalendarEvent[] => {
    return [...events].sort((a, b) => {
-      if (a.allDay && !b.allDay) return -1
-      if (!a.allDay && b.allDay) return 1
-      if (a.allDay && b.allDay) return 0
+      const aIsAllDay = isEventAllDay(a)
+      const bIsAllDay = isEventAllDay(b)
+
+      if (aIsAllDay && !bIsAllDay) return -1
+      if (!aIsAllDay && bIsAllDay) return 1
+      if (aIsAllDay && bIsAllDay) return 0
 
       const aTime = getEventStartTime(a)
       const bTime = getEventStartTime(b)
@@ -245,23 +248,17 @@ export const sortEventsByTime = (events: CalendarEvent[]): CalendarEvent[] => {
 }
 
 export const getEventDuration = (event: CalendarEvent): number => {
-   if (event.allDay || !event.end) return 0
+   if (!event.end) return 0
 
-   const startTime = getEventStartTime(event)
-   const endTime = getEventEndTime(event)
+   const start = new Date(event.start)
+   const end = new Date(event.end)
 
-   if (!startTime || !endTime) return 0
-
-   const start = parseTime(startTime)
-   const end = parseTime(endTime)
-   const startMinutes = start.hour * 60 + start.minute
-   const endMinutes = end.hour * 60 + end.minute
-
-   return endMinutes - startMinutes
+   const diff = end.getTime() - start.getTime()
+   return Math.round(diff / (1000 * 60)) // duration in minutes
 }
 
 export const hasTimeConflict = (event1: CalendarEvent, event2: CalendarEvent): boolean => {
-   if (event1.allDay || event2.allDay) return false
+   if (isEventAllDay(event1) || isEventAllDay(event2)) return false
    if (!event1.end || !event2.end) return false
 
    const event1StartDate = getEventStartDate(event1)
@@ -357,17 +354,16 @@ export const createEventFromDateTime = (
    startTime?: string,
    endTime?: string,
    allDay?: boolean
-): { start: string; end?: string; allDay?: boolean } => {
+): { start: string; end?: string } => {
    if (allDay) {
       const startOfDay = new Date(date)
       startOfDay.setHours(0, 0, 0, 0)
-      const endOfDay = new Date(date)
-      endOfDay.setHours(23, 59, 59, 999)
+      const endOfDay = new Date(startOfDay)
+      endOfDay.setDate(endOfDay.getDate() + 1)
 
       return {
          start: startOfDay.toISOString(),
          end: endOfDay.toISOString(),
-         allDay: true,
       }
    }
 
@@ -377,7 +373,6 @@ export const createEventFromDateTime = (
    return {
       start: startDateTime,
       end: endDateTime,
-      allDay: false,
    }
 }
 
@@ -390,7 +385,7 @@ export function parseISOToDateTime(isoString: string): { date: string; time: str
 
 export const findNextAvailableTime = (targetDate: Date, eventsOnDay: CalendarEvent[]) => {
    const timedEvents = eventsOnDay.filter(
-      (event) => !event.allDay && event.end && isSameDay(getEventStartDate(event), targetDate)
+      (event) => !isEventAllDay(event) && event.end && isSameDay(getEventStartDate(event), targetDate)
    )
 
    if (!timedEvents.length) {
