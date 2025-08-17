@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { CalendarEvent } from 'v-event-calendar/types'
+import { CalendarEvent } from './types'
 
 // Utility to create ISO strings relative to today
 function withTime(hours: number, minutes: number, dayOffset = 0) {
