@@ -33,7 +33,7 @@ const sampleEvents = ref<CalendarEvent[]>([
       title: 'Conference',
       start: withTime(9, 0, 5), // 5 days later at 09:00
       end: withTime(17, 0, 7), // 7 days later at 17:00
-      allDay: true,
+
       backgroundColor: '#f59e0b',
       textColor: '#ffffff',
       description: 'Annual tech conference',
@@ -43,7 +43,7 @@ const sampleEvents = ref<CalendarEvent[]>([
       title: 'Conference',
       start: withTime(9, 0, 5), // 5 days later at 09:00
       end: withTime(17, 0, 7), // 7 days later at 17:00
-      allDay: true,
+
       backgroundColor: '#f59e0b',
       textColor: '#ffffff',
       description: 'Annual tech conference',
@@ -53,7 +53,7 @@ const sampleEvents = ref<CalendarEvent[]>([
       title: 'Conference',
       start: withTime(9, 0, 5), // 5 days later at 09:00
       end: withTime(17, 0, 7), // 7 days later at 17:00
-      allDay: true,
+
       backgroundColor: '#f59e0b',
       textColor: '#ffffff',
       description: 'Annual tech conference',
@@ -63,7 +63,7 @@ const sampleEvents = ref<CalendarEvent[]>([
       title: 'Conference',
       start: withTime(9, 0, 5), // 5 days later at 09:00
       end: withTime(17, 0, 7), // 7 days later at 17:00
-      allDay: true,
+
       backgroundColor: '#f59e0b',
       textColor: '#ffffff',
       description: 'Annual tech conference',
@@ -82,7 +82,7 @@ const sampleEvents = ref<CalendarEvent[]>([
       title: 'Hackathon',
       start: withTime(9, 0, 11), // 11 days later at 09:00
       end: withTime(18, 0, 14), // 14 days later at 18:00
-      allDay: true,
+
       backgroundColor: '#8b5cf6',
       textColor: '#ffffff',
       description: '4-day coding hackathon',
@@ -92,7 +92,7 @@ const sampleEvents = ref<CalendarEvent[]>([
       title: 'Workshop',
       start: withTime(9, 0, -1), // 5 days before today at 09:00
       end: withTime(17, 0, 2), // 4 days before today at 17:00
-      allDay: true,
+
       backgroundColor: '#06b6d4',
       textColor: '#ffffff',
       description: 'Two-day technical workshop',
