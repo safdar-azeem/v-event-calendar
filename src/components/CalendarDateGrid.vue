@@ -1,3 +1,5 @@
+src/components/CalendarDateGrid.vue
+
 <script setup lang="ts">
 import Icon from './Icon.vue'
 import Draggable from 'vuedraggable'
@@ -22,9 +24,9 @@ interface CalendarDateGridProps {
 interface CalendarDateGridEmits {
    (e: 'dayClick', date: Date): void
    (e: 'eventClick', event: CalendarEvent): void
-   (e: 'createEvent', date: Date, start: string, end?: string): void
+   (e: 'createEvent', date: Date, start: string, end?: string, duration?: number): void
    (e: 'timeSlotClick', date: Date, time: string): void
-   (e: 'eventUpdate', eventId: string, start: string, end?: string): void
+   (e: 'eventUpdate', eventId: string, start: string, end?: string, duration?: number): void
 }
 
 const props = withDefaults(defineProps<CalendarDateGridProps>(), {
@@ -85,11 +87,15 @@ const handleEventClick = (event: CalendarEvent) => {
 }
 
 const handleEventResizeUpdateLocal = (eventId: string, start: string, end: string) => {
+   const duration = Math.max(15, (new Date(end).getTime() - new Date(start).getTime()) / 60000)
    handleEventResizeUpdate(eventId, start, end)
+   emit('eventUpdate', eventId, start, end, duration)
 }
 
 const handleEventResizeEndLocal = (eventId: string, start: string, end: string) => {
+   const duration = Math.max(15, (new Date(end).getTime() - new Date(start).getTime()) / 60000)
    handleEventResizeEnd(eventId, start, end)
+   emit('eventUpdate', eventId, start, end, duration)
 }
 </script>
 
