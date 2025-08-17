@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Icon from './Icon.vue'
 import Draggable from 'vuedraggable'
-import { defineAsyncComponent } from 'vue'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarCell, CalendarEvent } from '../types'
 import { useCalendarDay } from '../composables/useCalendarDay'
@@ -14,7 +13,6 @@ interface CalendarDayProps {
    multiDayTrackCount?: number
    timeFormat?: '12h' | '24h'
 }
-
 interface CalendarDayEmits {
    (e: 'dayClick', date: Date): void
    (e: 'eventClick', event: CalendarEvent): void
@@ -32,13 +30,12 @@ interface CalendarDayEmits {
 
 const props = withDefaults(defineProps<CalendarDayProps>(), {
    view: 'month',
+   timeFormat: '24h',
    maxEventsDisplay: 2,
    allowEventCreation: true,
-   timeFormat: '24h',
 })
 
 const emit = defineEmits<CalendarDayEmits>()
-
 const {
    calendarDayClasses,
    calendarDateNumber,
@@ -67,17 +64,17 @@ const {
             @click.stop="calendarHandleCreateEvent"
             class="add-event-btn"
             title="Add event">
-            <Icon icon="plus" width="13" height="13" />
+            <Icon width="13" icon="plus" height="13" />
          </button>
       </div>
 
       <div
-         v-if="hasMultiDayEvent"
          class="flex-shrink-0"
+         v-if="hasMultiDayEvent"
+         v-for="_ in multiDayTrackCount"
          :style="{
             minHeight: multiDayTrackCount == 1 ? '25px' : '21.5px',
-         }"
-         v-for="_ in multiDayTrackCount"></div>
+         }"></div>
 
       <Draggable
          :list="calendarDisplayedEvents"
@@ -96,8 +93,8 @@ const {
          <template #item="{ element: event, index }">
             <div
                :data-event-id="event.id"
-               :data-event-startTime="event.start"
                :data-event-endTime="event.end"
+               :data-event-startTime="event.start"
                :data-event-duration="
                   Math.max(
                      15,
