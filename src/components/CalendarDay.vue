@@ -24,7 +24,6 @@ interface CalendarDayEmits {
    (
       e: 'eventUpdate',
       eventId: string,
-      newDate: string,
       newStartTime?: string,
       newEndTime?: string,
       duration?: number
