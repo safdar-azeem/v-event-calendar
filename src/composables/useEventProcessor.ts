@@ -1,12 +1,12 @@
-import { type CalendarEvent, type ProcessedEvents, type TimedEventLayout } from '../types'
+import { isEventAllDay } from '../utils/eventUtils'
 import { calculateTimedEventLayout } from '../utils/calendarLayoutUtils'
+import { type CalendarEvent, type ProcessedEvents, type TimedEventLayout } from '../types'
 import {
    formatDate,
    getEventEndDate,
    getEventStartDate,
    isEventMultiDay,
 } from '../utils/calendarDateUtils'
-import { isEventAllDay } from '../utils/eventUtils'
 
 const getDatesInRange = (startDate: Date, endDate: Date): Date[] => {
    const dates: Date[] = []
