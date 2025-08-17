@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import '../css/style.css'
-import { computed, watch, defineAsyncComponent } from 'vue'
+import { computed, watch } from 'vue'
+import CalendarDateGrid from './CalendarDateGrid.vue'
+import CalendarWeekGrid from './CalendarWeekGrid.vue'
+import CalendarMonthGrid from './CalendarMonthGrid.vue'
 import { useCalendar } from '../composables/useCalendar'
 import { addMonths, addWeeks } from '../utils/calendarDateUtils'
 import type { CalendarEvent, CalendarView, CalendarViewConfig } from '../types'
-
-const CalendarMonthGrid = defineAsyncComponent(() => import('./CalendarMonthGrid.vue'))
-const CalendarWeekGrid = defineAsyncComponent(() => import('./CalendarWeekGrid.vue'))
-const CalendarDateGrid = defineAsyncComponent(() => import('./CalendarDateGrid.vue'))
 
 interface CalendarViewProps {
    events?: CalendarEvent[]
@@ -20,35 +19,35 @@ interface CalendarViewProps {
 }
 
 interface CalendarViewEmits {
-   (e: 'eventClick', event: CalendarEvent): void
-   (e: 'eventCreate', date: Date, start: string, end?: string, duration?: number): void
    (e: 'dayClick', date: Date): void
-   (e: 'viewChange', view: CalendarView): void
    (e: 'dateChange', date: Date): void
+   (e: 'eventClick', event: CalendarEvent): void
+   (e: 'viewChange', view: CalendarView): void
+   (e: 'eventCreate', date: Date, start: string, end?: string, duration?: number): void
    (e: 'eventUpdate', eventId: string, start: string, end?: string, duration?: number): void
 }
 
 const props = withDefaults(defineProps<CalendarViewProps>(), {
    events: () => [],
-   initialView: 'month',
-   allowEventCreation: true,
-   allowEventEditing: true,
    maxEventsPerDay: 3,
+   initialView: 'month',
    showWeekNumbers: false,
+   allowEventEditing: true,
+   allowEventCreation: true,
 })
 
 const emit = defineEmits<CalendarViewEmits>()
 
 const {
    config,
-   currentDate: calendarCurrentDate,
-   selectedDate: calendarSelectedDate,
-   view: calendarView,
    calendarCells,
    calendarMonth,
+   calendarDayNames,
+   view: calendarView,
    calendarCurrentMonthName,
    calendarCurrentWeekRange,
-   calendarDayNames,
+   currentDate: calendarCurrentDate,
+   selectedDate: calendarSelectedDate,
    calendarGoToToday,
    calendarGoToDate,
    calendarSelectDate,
@@ -159,19 +158,19 @@ watch(
 )
 
 defineExpose({
-   goToDate: calendarGoToDate,
-   goToToday: handleGoToToday,
-   goToPrevious: handleGoToPrevious,
-   goToNext: handleGoToNext,
-   canGoPrevious: canGoPrevious,
+   forceUpdate,
+   view: calendarView,
    canGoNext: canGoNext,
+   goToDate: calendarGoToDate,
+   goToNext: handleGoToNext,
    setView: calendarSetView,
+   title: currentTitle.value,
+   goToToday: handleGoToToday,
+   canGoPrevious: canGoPrevious,
    selectDate: calendarSelectDate,
+   goToPrevious: handleGoToPrevious,
    currentDate: calendarCurrentDate,
    selectedDate: calendarSelectedDate,
-   view: calendarView,
-   title: currentTitle.value,
-   forceUpdate,
 })
 </script>
 
@@ -181,16 +180,16 @@ defineExpose({
       <div class="flex-1">
          <CalendarMonthGrid
             v-if="calendarView === 'month'"
-            :calendar-month="calendarMonth"
-            :day-names="calendarDayNames"
-            :show-week-numbers="showWeekNumbers"
-            :allow-event-creation="allowEventCreation"
-            :max-events-per-day="maxEventsPerDay"
-            :time-format="config.timeFormat"
             @day-click="handleDayClick"
+            :day-names="calendarDayNames"
+            :calendar-month="calendarMonth"
             @event-click="handleEventClick"
+            :time-format="config.timeFormat"
             @create-event="handleCreateEvent"
-            @event-update="handleEventUpdate">
+            @event-update="handleEventUpdate"
+            :show-week-numbers="showWeekNumbers"
+            :max-events-per-day="maxEventsPerDay"
+            :allow-event-creation="allowEventCreation">
             <template #event="props">
                <slot name="event" v-bind="props" />
             </template>
@@ -198,15 +197,15 @@ defineExpose({
          <CalendarWeekGrid
             v-else-if="calendarView === 'week'"
             :calendar-cells="calendarCells"
+            @day-click="handleDayClick"
             :day-names="calendarDayNames"
-            :allow-event-creation="allowEventCreation"
+            @event-click="handleEventClick"
             :hour-height="config.hourHeight"
             :time-format="config.timeFormat"
-            @day-click="handleDayClick"
-            @event-click="handleEventClick"
             @create-event="handleCreateEvent"
+            @event-update="handleEventUpdate"
             @time-slot-click="handleTimeSlotClick"
-            @event-update="handleEventUpdate">
+            :allow-event-creation="allowEventCreation">
             <template #event="props">
                <slot name="event" v-bind="props" />
             </template>
@@ -214,14 +213,14 @@ defineExpose({
          <CalendarDateGrid
             v-else-if="calendarView === 'date'"
             :calendar-cells="calendarCells"
-            :allow-event-creation="allowEventCreation"
-            :hour-height="config.hourHeight"
-            :time-format="config.timeFormat"
             @day-click="handleDayClick"
             @event-click="handleEventClick"
+            :hour-height="config.hourHeight"
+            :time-format="config.timeFormat"
             @create-event="handleCreateEvent"
+            @event-update="handleEventUpdate"
             @time-slot-click="handleTimeSlotClick"
-            @event-update="handleEventUpdate">
+            :allow-event-creation="allowEventCreation">
             <template #event="props">
                <slot name="event" v-bind="props" />
             </template>
