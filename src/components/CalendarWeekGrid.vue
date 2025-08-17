@@ -62,7 +62,6 @@ const {
    setDraggingDisabled,
    isDraggingDisabled,
    isDragCreating,
-   timedEventLayouts,
 } = useCalendarGrid(props, emit)
 
 const isCurrentWeek = computed(() => props.calendarCells.some((cell) => cell.isToday))
@@ -212,7 +211,7 @@ const handleAllDayDragEnd = (event: any) => {
               disabledAllDayDrag = false
             }
           ">
-               <template #item="{ element: layout, index }">
+               <template #item="{ element: layout }">
                   <div
                      :data-event-id="layout.event.id"
                      :data-event-all-day="isEventAllDay(layout.event)"
@@ -229,7 +228,6 @@ const handleAllDayDragEnd = (event: any) => {
                         :compact="true"
                         rounded="sm"
                         class="all-day-event"
-                        :is-multi-day="layout.span > 1"
                         :time-format="props.timeFormat"
                         @click="handleEventClick(layout.event)">
                         <template #event="props">
@@ -299,7 +297,7 @@ const handleAllDayDragEnd = (event: any) => {
                            }">
                            <CalendarEventComponent
                               :event="event"
-                              :layout="timedEventLayouts.get(cell.dateString)?.get(event.id)"
+                              :layout="cell.timedLayout?.get(event.id)"
                               view="week"
                               canResize
                               :event-index="index"
