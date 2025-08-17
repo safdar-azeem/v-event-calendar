@@ -1,5 +1,3 @@
-src/components/CalendarDateGrid.vue
-
 <script setup lang="ts">
 import Icon from './Icon.vue'
 import Draggable from 'vuedraggable'
@@ -10,6 +8,7 @@ import type { CalendarCell, CalendarEvent } from '../types'
 import CurrentTimeIndicator from './CurrentTimeIndicator.vue'
 import { useCurrentTime } from '../composables/useCurrentTime'
 import { useCalendarGrid } from '../composables/useCalendarGrid'
+import { isEventAllDay } from '../utils/eventUtils'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
 
 interface CalendarDateGridProps {
@@ -71,7 +70,7 @@ const { isCurrentlyResizing, getCurrentResizeEventId } = useCalendarEventResize(
 
 const allDayEvents = computed(() => {
    if (!cell.value) return []
-   return cell.value.events.filter((e) => e.allDay)
+   return cell.value.events.filter(isEventAllDay)
 })
 
 watch(
