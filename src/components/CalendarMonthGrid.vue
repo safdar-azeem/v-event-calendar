@@ -1,3 +1,5 @@
+src/components/CalendarMonthGrid.vue
+
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import Draggable from 'vuedraggable'
@@ -28,8 +30,8 @@ interface CalendarMonthGridProps {
 interface CalendarMonthGridEmits {
    (e: 'dayClick', date: Date): void
    (e: 'eventClick', event: CalendarEvent): void
-   (e: 'createEvent', date: Date, start: string, end?: string): void
-   (e: 'eventUpdate', eventId: string, start: string, end?: string): void
+   (e: 'createEvent', date: Date, start: string, end?: string, duration?: number): void
+   (e: 'eventUpdate', eventId: string, start: string, end?: string, duration?: number): void
 }
 
 const disabledAllDayDrag = ref(false)
@@ -55,8 +57,10 @@ const handleEventClick = (event: CalendarEvent) => {
    emit('eventClick', event)
 }
 
-const handleEventUpdate = (eventId: string, start: string, end?: string) => {
-   emit('eventUpdate', eventId, start, end)
+const handleEventUpdate = (eventId: string, start: string, end?: string, duration?: number) => {
+   const calculatedDuration =
+      duration || Math.max(15, (new Date(end || start).getTime() - new Date(start).getTime()) / 60000)
+   emit('eventUpdate', eventId, start, end, calculatedDuration)
 }
 
 const calendarHandleDragEnd = (event: any) => {
@@ -78,7 +82,12 @@ const calendarHandleDragEnd = (event: any) => {
 
       const { startTime, endTime } = findNextAvailableTime(newDate, targetDayEvents)
       const eventData = createEventFromDateTime(newDate, startTime, endTime, false)
-      emit('eventUpdate', eventId, eventData.start, eventData.end)
+      const duration = Math.max(
+         15,
+         (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
+            60000
+      )
+      emit('eventUpdate', eventId, eventData.start, eventData.end, duration)
    }
 }
 </script>
@@ -110,7 +119,9 @@ const calendarHandleDragEnd = (event: any) => {
                @dragEnd="disabledAllDayDrag = false"
                @day-click="$emit('dayClick', $event)"
                @event-click="$emit('eventClick', $event)"
-               @create-event="(date, start, end) => $emit('createEvent', date, start, end)"
+               @create-event="
+                  (date, start, end, duration) => $emit('createEvent', date, start, end, duration)
+               "
                @event-update="handleEventUpdate">
                <template #event="props">
                   <slot name="event" v-bind="props" />
