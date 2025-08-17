@@ -9,6 +9,7 @@ import {
 } from '../utils/calendarDateUtils'
 import { calculateTimedEventLayout } from '../utils/calendarLayoutUtils'
 import { useCalendarEventDragCreate } from './useCalendarEventDragCreate'
+import { isEventAllDay } from '../utils/eventUtils'
 
 export function useCalendarGrid(
    props: {
@@ -58,7 +59,7 @@ export function useCalendarGrid(
       const cells = props.calendarCells || (cell.value ? [cell.value] : [])
 
       cells.forEach((cell) => {
-         const timedEvents = cell.events.filter((e) => !e.allDay && !isEventMultiDay(e))
+         const timedEvents = cell.events.filter((e) => !isEventAllDay(e) && !isEventMultiDay(e))
          const layoutForDay = calculateTimedEventLayout(timedEvents)
          allLayouts.set(cell.dateString, layoutForDay)
       })
@@ -73,7 +74,7 @@ export function useCalendarGrid(
       if (!targetCell || !targetCell.events) return []
 
       return targetCell.events.filter((event: any) => {
-         if (event.allDay || isEventMultiDay(event)) return false
+         if (isEventAllDay(event) || isEventMultiDay(event)) return false
          const eventStartTime = getEventStartTime(event)
          if (!eventStartTime) return false
          const eventHour = parseInt(eventStartTime.split(':')[0])
