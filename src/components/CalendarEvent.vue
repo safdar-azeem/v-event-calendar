@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { isEventAllDay } from '../utils/eventUtils'
 import type { CalendarEvent, TimedEventLayout } from '../types'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
-import { isEventAllDay } from '../utils/eventUtils'
 
 import {
    parseTime,
@@ -15,15 +15,15 @@ import {
 
 interface CalendarEventProps {
    event: CalendarEvent
-   view: 'month' | 'week' | 'date'
-   canResize?: boolean
-   maxDisplayEvents?: number
-   eventIndex?: number
    compact?: boolean
+   canResize?: boolean
+   eventIndex?: number
    hourHeight?: number
    rounded?: 'sm' | 'md'
+   maxDisplayEvents?: number
    layout?: TimedEventLayout
    timeFormat?: '12h' | '24h'
+   view: 'month' | 'week' | 'date'
 }
 
 interface CalendarEventEmits {
