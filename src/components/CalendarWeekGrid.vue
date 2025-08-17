@@ -1,5 +1,3 @@
-src/components/CalendarWeekGrid.vue
-
 <script setup lang="ts">
 import Icon from './Icon.vue'
 import Draggable from 'vuedraggable'
@@ -12,6 +10,7 @@ import { useCurrentTime } from '../composables/useCurrentTime'
 import { useCalendarGrid } from '../composables/useCalendarGrid'
 import { calculateAllDayEventLayout } from '../utils/calendarLayoutUtils'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
+import { isEventAllDay } from '../utils/eventUtils'
 import {
    createEventFromDateTime,
    findNextAvailableTime,
@@ -208,15 +207,15 @@ const handleAllDayDragEnd = (event: any) => {
                :component-data="{ class: 'w-full h-full all-day-events-overlay' }"
                @start="disabledAllDayDrag = true"
                @end="
-                  (event:any) => {
-                     handleAllDayDragEnd(event)
-                     disabledAllDayDrag = false
-                  }
-               ">
+            (event: any) => {
+              handleAllDayDragEnd(event)
+              disabledAllDayDrag = false
+            }
+          ">
                <template #item="{ element: layout, index }">
                   <div
                      :data-event-id="layout.event.id"
-                     :data-event-all-day="layout.event.allDay"
+                     :data-event-all-day="isEventAllDay(layout.event)"
                      :data-is-multi-day="isEventMultiDay(layout.event)"
                      class="all-day-event-item"
                      :style="{
