@@ -2,49 +2,10 @@
 import { ref } from 'vue'
 import CalendarView from './components/CalendarView.vue'
 import type { CalendarEvent, CalendarView as CalendarViewType } from './types/index'
+import sampleEvents from './sampleEvents'
 
 const currentView = ref<CalendarViewType>('month')
 const selectedDate = ref(new Date())
-
-const sampleEvents = ref<CalendarEvent[]>([
-   {
-      id: '1',
-      title: 'Team Meeting',
-      start: '2025-01-20T10:00:00.000Z',
-      end: '2025-01-20T11:00:00.000Z',
-      backgroundColor: '#3b82f6',
-      textColor: '#ffffff',
-      description: 'Weekly team sync',
-   },
-   {
-      id: '2',
-      title: 'Project Review',
-      start: '2025-01-22T14:00:00.000Z',
-      end: '2025-01-22T15:30:00.000Z',
-      backgroundColor: '#10b981',
-      textColor: '#ffffff',
-      description: 'Quarterly project review',
-   },
-   {
-      id: '3',
-      title: 'Conference',
-      start: '2025-01-25T09:00:00.000Z',
-      end: '2025-01-27T17:00:00.000Z',
-      allDay: true,
-      backgroundColor: '#f59e0b',
-      textColor: '#ffffff',
-      description: 'Annual tech conference',
-   },
-   {
-      id: '4',
-      title: 'Client Call',
-      start: '2025-01-23T16:00:00.000Z',
-      end: '2025-01-23T17:00:00.000Z',
-      backgroundColor: '#ef4444',
-      textColor: '#ffffff',
-      description: 'Client consultation',
-   },
-])
 
 const calendarRef = ref()
 
