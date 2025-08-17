@@ -157,6 +157,8 @@ const handleAllDayDragEnd = (event: any) => {
       }
 
       const eventData = createEventFromDateTime(newDate, startTime, endTime, false)
+      console.log('eventData.star :>> ', eventData.start)
+      console.log('eventData.end :>> ', eventData.end)
       emit('eventUpdate', eventId, eventData.start, eventData.end)
    }
 }
