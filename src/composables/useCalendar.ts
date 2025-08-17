@@ -239,8 +239,7 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
       let endTime = time ? addHourToTime(time) : undefined
 
       if (allDay) {
-         const { start, end } = createEventFromDateTime(date, undefined, undefined, true)
-         return { start, end }
+         return createEventFromDateTime(date, undefined, undefined, true)
       }
 
       if (!time) {
@@ -274,8 +273,7 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
             }
          }
       }
-      const { start, end } = createEventFromDateTime(date, startTime, endTime, false)
-      return { start, end }
+      return createEventFromDateTime(date, startTime, endTime, false)
    }
 
    const addHourToTime = (timeString: string): string => {
