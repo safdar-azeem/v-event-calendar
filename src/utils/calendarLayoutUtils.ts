@@ -1,5 +1,6 @@
 import type { CalendarEvent, CalendarCell, TimedEventLayout } from '../types/index'
 import { getEventStartDate, getEventEndDate, isEventMultiDay, isSameDay } from './calendarDateUtils'
+import { isEventAllDay } from './eventUtils'
 
 export interface EventLayout {
    event: CalendarEvent
@@ -80,7 +81,7 @@ export function calculateAllDayEventLayout(cells: CalendarCell[]): EventLayout[]
    >()
    cells.forEach((day) => {
       day.events.forEach((event) => {
-         if (event.allDay || isEventMultiDay(event)) {
+         if (isEventAllDay(event) || isEventMultiDay(event)) {
             if (!uniqueEvents.has(event.id)) {
                const eventStartDate = getEventStartDate(event)
                const eventEndDate = getEventEndDate(event)
@@ -180,7 +181,7 @@ export function calculateMultiDayEventCountForDay(cell: CalendarCell): number {
    const weekEndDate = cell.date
    const uniqueEvents = new Set<string>()
    cell.events.forEach((event) => {
-      if (event.allDay || isEventMultiDay(event)) {
+      if (isEventAllDay(event) || isEventMultiDay(event)) {
          const eventStartDate = getEventStartDate(event)
          const eventEndDate = getEventEndDate(event)
          if (
