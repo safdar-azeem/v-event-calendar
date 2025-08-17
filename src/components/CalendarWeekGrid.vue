@@ -80,7 +80,7 @@ const allDayLayout = computed(() => {
 const allDaySectionHeight = computed(() => {
    if (allDayLayout.value.length === 0) return 0
    const maxTrack = Math.max(...allDayLayout.value.map((l) => l.track))
-   return (maxTrack + 1) * 30 + 2
+   return (maxTrack + 1) * 17 + 2
 })
 
 watch(
@@ -184,9 +184,9 @@ const handleAllDayDragEnd = (event: any) => {
 
       <div v-if="allDayLayout.length > 0" class="grid-template-time all-day-section">
          <div class="all-day-label">All-day</div>
+
          <div class="relative">
             <div class="grid-cols-7" :style="{ height: `${allDaySectionHeight + 5}px` }"></div>
-
             <Draggable
                :list="allDayLayout"
                item-key="event.id"
@@ -194,7 +194,7 @@ const handleAllDayDragEnd = (event: any) => {
                class="all-day-events-overlay"
                ghost-class="opacity-50"
                :disabled="disabledAllDayDrag || isCurrentlyResizing || isDragCreating"
-               :component-data="{ class: 'w-full h-full' }"
+               :component-data="{ class: 'w-full h-full all-day-events-overlay' }"
                @start="disabledAllDayDrag = true"
                @end="
                   (event:any) => {
@@ -202,16 +202,16 @@ const handleAllDayDragEnd = (event: any) => {
                      disabledAllDayDrag = false
                   }
                ">
-               <template #item="{ element: layout }">
+               <template #item="{ element: layout, index }">
                   <div
                      :data-event-id="layout.event.id"
                      :data-event-all-day="layout.event.allDay"
                      :data-is-multi-day="isEventMultiDay(layout.event)"
                      class="all-day-event-item"
                      :style="{
-                        top: `${layout.track * 27}px`,
                         left: `${(layout.startDayIndex / 7) * 100}%`,
                         width: `${(layout.span / 7) * 100}%`,
+                        top: `${layout.track * 20}px`,
                      }">
                      <CalendarEventComponent
                         :event="layout.event"
