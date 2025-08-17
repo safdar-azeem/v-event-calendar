@@ -1,14 +1,13 @@
-src/components/CalendarView.vue
-
 <script setup lang="ts">
 import '../css/style.css'
-import { computed, watch } from 'vue'
-import CalendarDateGrid from './CalendarDateGrid.vue'
-import CalendarWeekGrid from './CalendarWeekGrid.vue'
-import CalendarMonthGrid from './CalendarMonthGrid.vue'
+import { computed, watch, defineAsyncComponent } from 'vue'
 import { useCalendar } from '../composables/useCalendar'
 import { addMonths, addWeeks } from '../utils/calendarDateUtils'
 import type { CalendarEvent, CalendarView, CalendarViewConfig } from '../types'
+
+const CalendarMonthGrid = defineAsyncComponent(() => import('./CalendarMonthGrid.vue'))
+const CalendarWeekGrid = defineAsyncComponent(() => import('./CalendarWeekGrid.vue'))
+const CalendarDateGrid = defineAsyncComponent(() => import('./CalendarDateGrid.vue'))
 
 interface CalendarViewProps {
    events?: CalendarEvent[]
@@ -55,10 +54,10 @@ const {
    calendarSelectDate,
    calendarSetView,
    calendarSetEvents,
+   forceUpdate,
 } = useCalendar(props.config)
 
 calendarSetView(props.initialView)
-calendarSetEvents(props.events)
 
 const currentTitle = computed(() => {
    if (calendarView.value === 'month') return calendarCurrentMonthName.value
@@ -156,7 +155,7 @@ watch(
    (newEvents) => {
       calendarSetEvents(newEvents)
    },
-   { deep: true }
+   { deep: true, immediate: true }
 )
 
 defineExpose({
@@ -172,6 +171,7 @@ defineExpose({
    selectedDate: calendarSelectedDate,
    view: calendarView,
    title: currentTitle.value,
+   forceUpdate,
 })
 </script>
 
