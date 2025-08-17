@@ -5,7 +5,11 @@ import CalendarDay from './CalendarDay.vue'
 import ScrollableWrapper from './Scrollablar.vue'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarEvent, CalendarMonth } from '../types'
-import { calculateAllDayEventLayout, type EventLayout } from '../utils/calendarLayoutUtils'
+import {
+   calculateAllDayEventLayout,
+   calculateMultiDayEventCountForDay,
+   type EventLayout,
+} from '../utils/calendarLayoutUtils'
 import {
    createEventFromDateTime,
    findNextAvailableTime,
@@ -97,7 +101,7 @@ const calendarHandleDragEnd = (event: any) => {
                :key="cell.dateString"
                :cell="cell"
                view="month"
-               :multiDayTrackCount="weekLayouts.get(week.weekNumber)?.length"
+               :multiDayTrackCount="calculateMultiDayEventCountForDay(cell)"
                :max-events-display="maxEventsPerDay"
                :allow-event-creation="allowEventCreation"
                :time-format="props.timeFormat"
@@ -129,9 +133,9 @@ const calendarHandleDragEnd = (event: any) => {
                      :data-is-multi-day="isEventMultiDay(layout.event)"
                      class="multi-day-event-container"
                      :style="{
-                        top: `calc(${35 + layout.track * 24}px + ${index * 1}px)`,
-                        left: `calc(${(layout.startDayIndex / 7) * 100}% + 1px)`,
-                        width: `calc(${(layout.span / 7) * 100}%)`,
+                        top: `calc(${25 + layout.track * 24}px - ${index * 3}px)`,
+                        left: `calc(${(layout.startDayIndex / 7) * 100}% + 2px)`,
+                        width: `calc(${(layout.span / 7) * 99}%)`,
                      }">
                      <CalendarEventComponent
                         :event="layout.event"
