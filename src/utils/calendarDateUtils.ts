@@ -436,3 +436,12 @@ export const findNextAvailableTime = (targetDate: Date, eventsOnDay: CalendarEve
 
    return { startTime, endTime }
 }
+
+export const getDuration = (startTime?: string, endTime?: string): number => {
+   if (!startTime || !endTime) return 60 // Default 1 hour
+
+   const startDate = new Date(startTime)
+   const endDate = new Date(endTime)
+
+   return Math.max(15, (endDate.getTime() - startDate.getTime()) / (1000 * 60)) // Minutes
+}
