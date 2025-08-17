@@ -3,12 +3,12 @@ import Icon from './Icon.vue'
 import Draggable from 'vuedraggable'
 import { computed, watch } from 'vue'
 import ScrollableWrapper from './Scrollablar.vue'
+import { isEventAllDay } from '../utils/eventUtils'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarCell, CalendarEvent } from '../types'
 import CurrentTimeIndicator from './CurrentTimeIndicator.vue'
 import { useCurrentTime } from '../composables/useCurrentTime'
 import { useCalendarGrid } from '../composables/useCalendarGrid'
-import { isEventAllDay } from '../utils/eventUtils'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
 
 interface CalendarDateGridProps {
@@ -42,19 +42,20 @@ const cell = computed(() => props.calendarCells[0])
 
 const {
    hours,
-   getEventsForTimeSlot,
-   getTimeSlotHeight,
-   getTimeSlotClass,
-   handleTimeSlotClick,
-   handleTimeSlotMouseDown,
-   handleTimeSlotMouseUp,
+
    handleDragEnd,
-   handleEventResizeUpdate,
-   handleEventResizeEnd,
-   setDraggingDisabled,
-   isDraggingDisabled,
    isDragCreating,
    getEventHeight,
+   getTimeSlotClass,
+   getEventsForTimeSlot,
+   getTimeSlotHeight,
+   isDraggingDisabled,
+   handleTimeSlotClick,
+   setDraggingDisabled,
+   handleEventResizeEnd,
+   handleTimeSlotMouseUp,
+   handleTimeSlotMouseDown,
+   handleEventResizeUpdate,
 } = useCalendarGrid(props, emit, cell)
 
 const isCurrentDay = computed(() => cell.value?.isToday ?? false)
@@ -104,8 +105,8 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
             <CalendarEventComponent
                v-for="event in allDayEvents"
                :key="event.id"
-               :event="event"
                view="date"
+               :event="event"
                :compact="true"
                :time-format="props.timeFormat"
                @click="handleEventClick(event)">
@@ -148,13 +149,13 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                   @mousedown="handleTimeSlotMouseDown($event, hourSlot.hour)"
                   @mouseup="handleTimeSlotMouseUp($event)">
                   <Draggable
-                     :list="getEventsForTimeSlot(hourSlot.hour)"
                      item-key="id"
-                     group="calendar-events"
-                     class="calendar-events-container"
                      @end="handleDragEnd"
-                     ghost-class="opacity-50"
                      :data-col="cell.date"
+                     :list="getEventsForTimeSlot(hourSlot.hour)"
+                     group="calendar-events"
+                     ghost-class="opacity-50"
+                     class="calendar-events-container"
                      :disabled="isDraggingDisabled || isCurrentlyResizing || isDragCreating">
                      <template #item="{ element: event, index }">
                         <div
