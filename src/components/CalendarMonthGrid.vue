@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import Draggable from 'vuedraggable'
 import CalendarDay from './CalendarDay.vue'
 import ScrollableWrapper from './Scrollablar.vue'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarEvent, CalendarMonth } from '../types'
 import { isEventAllDay } from '../utils/eventUtils'
-import {
-   calculateAllDayEventLayout,
-   calculateMultiDayEventCountForDay,
-   type EventLayout,
-} from '../utils/calendarLayoutUtils'
 import {
    createEventFromDateTime,
    findNextAvailableTime,
@@ -43,14 +38,6 @@ const props = withDefaults(defineProps<CalendarMonthGridProps>(), {
 })
 
 const emit = defineEmits<CalendarMonthGridEmits>()
-
-const weekLayouts = computed(() => {
-   const layouts = new Map<number, EventLayout[]>()
-   props.calendarMonth.weeks.forEach((week) => {
-      layouts.set(week.weekNumber, calculateAllDayEventLayout(week.days))
-   })
-   return layouts
-})
 
 const handleEventClick = (event: CalendarEvent) => {
    emit('eventClick', event)
@@ -109,7 +96,7 @@ const calendarHandleDragEnd = (event: any) => {
                :key="cell.dateString"
                :cell="cell"
                view="month"
-               :multiDayTrackCount="calculateMultiDayEventCountForDay(cell)"
+               :multiDayTrackCount="cell.multiDayTrackCount"
                :max-events-display="maxEventsPerDay"
                :allow-event-creation="allowEventCreation"
                :time-format="props.timeFormat"
@@ -128,7 +115,7 @@ const calendarHandleDragEnd = (event: any) => {
             </CalendarDay>
 
             <Draggable
-               :list="weekLayouts.get(week.weekNumber) || []"
+               :list="week.allDayLayout || []"
                item-key="event.id"
                group="calendar-events"
                class="all-day-events-overlay"
