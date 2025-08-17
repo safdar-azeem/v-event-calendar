@@ -282,6 +282,19 @@ button {
    background-color: #f3f4f6;
 }
 
+.dark {
+   --calendar-primary-color: #60a5fa; /* Lighter blue for contrast */
+   --calendar-secondary-color: #34d399; /* Softer green */
+   --calendar-bg-color: #1f2937; /* Dark gray background */
+   --calendar-text-color: #f9fafb; /* Light text */
+   --calendar-border-color: #374151; /* Dark border */
+   --calendar-hover-color: #111827; /* Slightly darker hover */
+   --calendar-date-label-size: 0.6em;
+   --calendar-date-font-weight: 500;
+   --calendar-day-header-font-size: 0.8rem;
+   --calendar-current-time-color: #f87171; /* Softer red */
+}
+
 .icon {
    width: 20px;
    height: 20px;
