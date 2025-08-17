@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import type { CalendarEvent } from '../types'
 import { formatDisplayTime, getEventEndTime, getEventStartTime } from '../utils/calendarDateUtils'
+import { isEventAllDay } from '../utils/eventUtils'
 
 interface ResizeState {
    isResizing: boolean
@@ -63,7 +64,7 @@ export function useCalendarEventResize() {
       date: string,
       timeFormat: '12h' | '24h'
    ) => {
-      if (event.allDay || !event.end) return
+      if (isEventAllDay(event) || !event.end) return
 
       const draggableContainers = document.querySelectorAll('.vdr')
       draggableContainers.forEach((container) => {
