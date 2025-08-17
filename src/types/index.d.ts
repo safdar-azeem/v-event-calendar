@@ -1,3 +1,5 @@
+import { EventLayout } from '../utils/calendarLayoutUtils'
+
 export type CalendarView = 'month' | 'week' | 'date'
 
 export interface CalendarEvent {
@@ -20,11 +22,16 @@ export interface CalendarCell {
    isSelected: boolean
    events: CalendarEvent[]
    isWeekend: boolean
+   // Pre-calculated data for performance
+   timedLayout?: Map<string, TimedEventLayout>
+   multiDayTrackCount?: number
 }
 
 export interface CalendarWeek {
    weekNumber: number
    days: CalendarCell[]
+   // Pre-calculated layout for all-day/multi-day events in this week
+   allDayLayout: EventLayout[]
 }
 
 export interface CalendarMonth {
@@ -84,3 +91,13 @@ export interface CalendarViewConfig {
    eventHeight: number
    hourHeight: number
 }
+
+// New types for processed events
+export interface ProcessedDay {
+   date: Date
+   events: CalendarEvent[]
+   timedLayout: Map<string, TimedEventLayout>
+   multiDayTrackCount: number
+}
+
+export type ProcessedEvents = Map<string, ProcessedDay>
