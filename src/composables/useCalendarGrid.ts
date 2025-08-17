@@ -30,7 +30,12 @@ export function useCalendarGrid(
 
    setEventCreateCallback((date: Date, startTime: string, endTime: string) => {
       const eventData = createEventFromDateTime(date, startTime, endTime, false)
-      emit('createEvent', date, eventData.start, eventData.end)
+      const duration = Math.max(
+         15,
+         (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
+            60000
+      )
+      emit('createEvent', date, eventData.start, eventData.end, duration)
    })
 
    const hours = computed(() => {
@@ -243,7 +248,12 @@ export function useCalendarGrid(
          newEndTime,
          false
       )
-      emit('eventUpdate', eventId, eventData.start, eventData.end)
+      const duration = Math.max(
+         15,
+         (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
+            60000
+      )
+      emit('eventUpdate', eventId, eventData.start, eventData.end, duration)
    }
 
    const getDayHeaderClass = (cell?: CalendarCell) => {
@@ -274,11 +284,13 @@ export function useCalendarGrid(
    }
 
    const handleEventResizeUpdate = (eventId: string, newStart: string, newEnd: string) => {
-      emit('eventUpdate', eventId, newStart, newEnd)
+      const duration = Math.max(15, (new Date(newEnd).getTime() - new Date(newStart).getTime()) / 60000)
+      emit('eventUpdate', eventId, newStart, newEnd, duration)
    }
 
    const handleEventResizeEnd = (eventId: string, newStart: string, newEnd: string) => {
-      emit('eventUpdate', eventId, newStart, newEnd)
+      const duration = Math.max(15, (new Date(newEnd).getTime() - new Date(newStart).getTime()) / 60000)
+      emit('eventUpdate', eventId, newStart, newEnd, duration)
    }
 
    const setDraggingDisabled = (disabled: boolean) => {
