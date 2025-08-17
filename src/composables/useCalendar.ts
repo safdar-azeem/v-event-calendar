@@ -1,11 +1,10 @@
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import type {
    CalendarEvent,
    CalendarView,
    CalendarCell,
    CalendarMonth,
    CalendarViewConfig,
-   CalendarEventCreateData,
 } from '../types/index'
 import { isEventAllDay } from '../utils/eventUtils'
 
@@ -15,21 +14,15 @@ import {
    isSameMonth,
    getCalendarGrid,
    getWeekGrid,
-   addDays,
-   addMonths,
-   addWeeks,
-   filterEventsByDate,
-   filterEventsByDateRange,
    sortEventsByTime,
    isWeekend,
    getWeekNumber,
-   parseTime,
-   createEventFromDateTime,
    getEventStartTime,
-   getEventEndTime,
 } from '../utils/calendarDateUtils'
 
 import { DEFAULT_CALENDAR_CONFIG } from '../constants'
+import { useEventProcessor } from './useEventProcessor'
+import { calculateAllDayEventLayout } from '../utils/calendarLayoutUtils'
 
 export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
    const config = reactive({ ...DEFAULT_CALENDAR_CONFIG, ...initialConfig })
@@ -37,6 +30,17 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
    const calendarSelectedDate = ref<Date | null>(null)
    const calendarView = ref<CalendarView>('month')
    const calendarEvents = ref<CalendarEvent[]>([])
+
+   const { processEvents } = useEventProcessor()
+   const processedEvents = ref(processEvents(calendarEvents.value))
+
+   watch(
+      calendarEvents,
+      (newEvents) => {
+         processedEvents.value = processEvents(newEvents)
+      },
+      { deep: true }
+   )
 
    const calendarDates = computed(() => {
       if (calendarView.value === 'month') {
@@ -51,7 +55,7 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
    const calendarCells = computed((): CalendarCell[] => {
       return calendarDates.value.map((date) => {
          const dateString = formatDate(date)
-         const dayEvents = filterEventsByDate(calendarEvents.value, date)
+         const dayData = processedEvents.value.get(dateString)
 
          return {
             date,
@@ -64,8 +68,10 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
             isSelected: calendarSelectedDate.value
                ? date.getTime() === calendarSelectedDate.value.getTime()
                : false,
-            events: sortEventsByTime(dayEvents),
+            events: dayData ? sortEventsByTime(dayData.events) : [],
             isWeekend: isWeekend(date),
+            timedLayout: dayData?.timedLayout,
+            multiDayTrackCount: dayData?.multiDayTrackCount,
          }
       })
    })
@@ -79,6 +85,7 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
          weeks.push({
             weekNumber: getWeekNumber(weekCells[0].date),
             days: weekCells,
+            allDayLayout: calculateAllDayEventLayout(weekCells),
          })
       }
 
@@ -99,12 +106,6 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
             timeSlots: generateTimeSlots(cell.date),
          })),
       }
-   })
-
-   const calendarVisibleEvents = computed(() => {
-      const startDate = calendarDates.value[0]
-      const endDate = calendarDates.value[calendarDates.value.length - 1]
-      return filterEventsByDateRange(calendarEvents.value, startDate, endDate)
    })
 
    const calendarCurrentMonthName = computed(() => {
@@ -146,7 +147,8 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
 
    function generateTimeSlots(date: Date) {
       const slots = []
-      const dayEvents = filterEventsByDate(calendarEvents.value, date)
+      const dayData = processedEvents.value.get(formatDate(date))
+      const dayEvents = dayData ? dayData.events : []
 
       for (let hour = 0; hour < 24; hour++) {
          const timeString = `${hour.toString().padStart(2, '0')}:00`
@@ -174,26 +176,6 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
       calendarSelectedDate.value = new Date()
    }
 
-   const calendarGoToPrevious = () => {
-      if (calendarView.value === 'month') {
-         calendarCurrentDate.value = addMonths(calendarCurrentDate.value, -1)
-      } else if (calendarView.value === 'week') {
-         calendarCurrentDate.value = addWeeks(calendarCurrentDate.value, -1)
-      } else {
-         calendarCurrentDate.value = addDays(calendarCurrentDate.value, -1)
-      }
-   }
-
-   const calendarGoToNext = () => {
-      if (calendarView.value === 'month') {
-         calendarCurrentDate.value = addMonths(calendarCurrentDate.value, 1)
-      } else if (calendarView.value === 'week') {
-         calendarCurrentDate.value = addWeeks(calendarCurrentDate.value, 1)
-      } else {
-         calendarCurrentDate.value = addDays(calendarCurrentDate.value, 1)
-      }
-   }
-
    const calendarGoToDate = (date: Date) => {
       calendarCurrentDate.value = new Date(date)
    }
@@ -206,84 +188,12 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
       calendarView.value = newView
    }
 
-   const calendarAddEvent = (event: CalendarEvent) => {
-      calendarEvents.value.push(event)
-   }
-
-   const calendarUpdateEvent = (eventId: string, updates: Partial<CalendarEvent>) => {
-      const index = calendarEvents.value.findIndex((e) => e.id === eventId)
-      if (index !== -1) {
-         calendarEvents.value[index] = { ...calendarEvents.value[index], ...updates }
-      }
-   }
-
-   const calendarRemoveEvent = (eventId: string) => {
-      calendarEvents.value = calendarEvents.value.filter((e) => e.id !== eventId)
-   }
-
    const calendarSetEvents = (newEvents: CalendarEvent[]) => {
       calendarEvents.value = [...newEvents]
    }
 
-   const calendarGetEventsForDate = (date: Date): CalendarEvent[] => {
-      return filterEventsByDate(calendarEvents.value, date)
-   }
-
-   const calendarCreateEventAtDate = (
-      date: Date,
-      time?: string,
-      allDay?: boolean
-   ): CalendarEventCreateData => {
-      const dayEvents = calendarGetEventsForDate(date).filter((e) => !isEventAllDay(e) && e.end)
-      let startTime = time
-      let endTime = time ? addHourToTime(time) : undefined
-
-      if (allDay) {
-         return createEventFromDateTime(date, undefined, undefined, true)
-      }
-
-      if (!time) {
-         if (dayEvents.length === 0) {
-            startTime = '09:00'
-            endTime = '10:00'
-         } else {
-            const lastEvent = dayEvents.reduce((latest, event) => {
-               const latestEndTime = getEventEndTime(latest)
-               const currentEndTime = getEventEndTime(event)
-
-               if (!latestEndTime || !currentEndTime) return latest
-
-               const latestTime = parseTime(latestEndTime)
-               const currentTime = parseTime(currentEndTime)
-
-               return currentTime.hour > latestTime.hour ||
-                  (currentTime.hour === latestTime.hour && currentTime.minute > latestTime.minute)
-                  ? event
-                  : latest
-            }, dayEvents[0])
-
-            const lastEventEndTime = getEventEndTime(lastEvent)
-            if (lastEventEndTime) {
-               const { hour, minute } = parseTime(lastEventEndTime)
-               startTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-               endTime = addHourToTime(startTime)
-            } else {
-               startTime = '09:00'
-               endTime = '10:00'
-            }
-         }
-      }
-      return createEventFromDateTime(date, startTime, endTime, false)
-   }
-
-   const addHourToTime = (timeString: string): string => {
-      const [hour, minute] = timeString.split(':').map(Number)
-      const newHour = (hour + 1) % 24
-      return `${newHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-   }
-
-   const calendarUpdateConfig = (updates: Partial<CalendarViewConfig>) => {
-      Object.assign(config, updates)
+   const forceUpdate = () => {
+      processedEvents.value = processEvents(calendarEvents.value)
    }
 
    return {
@@ -295,22 +205,14 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
       calendarCells,
       calendarMonth,
       calendarWeek,
-      calendarVisibleEvents,
       calendarCurrentMonthName,
       calendarCurrentWeekRange,
       calendarDayNames,
       calendarGoToToday,
-      calendarGoToPrevious,
-      calendarGoToNext,
       calendarGoToDate,
       calendarSelectDate,
       calendarSetView,
-      calendarAddEvent,
-      calendarUpdateEvent,
-      calendarRemoveEvent,
       calendarSetEvents,
-      calendarGetEventsForDate,
-      calendarCreateEventAtDate,
-      calendarUpdateConfig,
+      forceUpdate,
    }
 }
