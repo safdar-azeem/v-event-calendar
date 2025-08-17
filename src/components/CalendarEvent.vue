@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { CalendarEvent, TimedEventLayout } from '../types'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
+import { isEventAllDay } from '../utils/eventUtils'
 
 import {
    parseTime,
@@ -47,7 +48,8 @@ const { startResize, isCurrentlyResizing, getCurrentResizeEventId, setUpdateCall
    useCalendarEventResize()
 
 const displayTime = computed(() => {
-   if (props.event?.allDay) return 'All day'
+   if (!props.event) return ''
+   if (isEventAllDay(props.event)) return 'All day'
 
    const startTime = getEventStartTime(props.event)
    const endTime = getEventEndTime(props.event)
@@ -85,10 +87,11 @@ const eventStyle = computed(() => {
    }
 
    if (
+      props.event &&
       (props.view === 'week' || props.view === 'date') &&
       !props.compact &&
-      !props.event?.allDay &&
-      props.event?.end
+      !isEventAllDay(props.event) &&
+      props.event.end
    ) {
       const duration = getEventDurationMinutes()
       const pixelsPerMinute = (props.hourHeight ?? 60) / 60
@@ -125,7 +128,7 @@ const isThisEventResizing = computed(() => {
 })
 
 const getEventDurationMinutes = (): number => {
-   if (props.event?.allDay || !props.event?.end) return 60
+   if (!props.event || isEventAllDay(props.event) || !props.event.end) return 60
 
    const startTime = getEventStartTime(props.event)
    const endTime = getEventEndTime(props.event)
@@ -152,7 +155,7 @@ const handleClick = (event: MouseEvent) => {
 }
 
 const handleResizeStart = (handle: 'top' | 'bottom', event: MouseEvent) => {
-   if (!props.canResize || !eventRef.value || props.event?.allDay) return
+   if (!props.canResize || !eventRef.value || !props.event || isEventAllDay(props.event)) return
 
    event?.preventDefault?.()
    event?.stopPropagation?.()
@@ -163,7 +166,7 @@ const handleResizeStart = (handle: 'top' | 'bottom', event: MouseEvent) => {
    const eventDate = formatDate(getEventStartDate(props.event))
 
    startResize(
-      props.event?.id ?? '',
+      props.event.id,
       handle,
       event.clientY,
       props.event,
@@ -196,7 +199,7 @@ onMounted(() => {
       @mousedown.stop
       :title="`${event?.title ?? ''}${displayTime ? ' • ' + displayTime : ''}`">
       <div
-         v-if="canResize && !event?.allDay"
+         v-if="canResize && event && !isEventAllDay(event)"
          class="resize-handle resize-handle-top"
          :class="{
             'resize-handle-active': isThisEventResizing,
@@ -224,7 +227,7 @@ onMounted(() => {
       </slot>
 
       <div
-         v-if="canResize && !event?.allDay"
+         v-if="canResize && event && !isEventAllDay(event)"
          class="resize-handle resize-handle-bottom"
          :class="{
             'resize-handle-active': isThisEventResizing,
