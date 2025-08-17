@@ -1,0 +1,55 @@
+{
+  "name": "v-event-calendar",
+  "version": "0.0.1",
+  "description": "Lightweight, Vue 3 Event Calendar With Event Scheduling, Multiple Views, Drag-&-Drop, Resizing and Customizable Styling",
+  "type": "module",
+  "author": "safdar-azeem",
+  "license": "MIT",
+  "main": "index.js",
+  "keywords": [
+    "vue",
+    "vue3",
+    "calendar",
+    "event-calendar",
+    "vue-big-calendar",
+    "event-management",
+    "vue-event",
+    "datepicker",
+    "task-calendar",
+    "task-manager"
+  ],
+  "homepage": "https://github.com/safdar-azeem/v-event-calendar#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/safdar-azeem/v-event-calendar.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.31"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/vue": "^2.0.0",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vite-plugin-dts": "^3.9.1",
+    "vue-tsc": "^2.0.21"
+  },
+  "prettier": {
+    "printWidth": 105,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "tabWidth": 3,
+    "endOfLine": "auto",
+    "bracketSameLine": true
+  },
+  "dependencies": {
+    "vuedraggable": "4.1.0"
+  }
+}
