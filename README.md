@@ -19,6 +19,8 @@ A powerful, feature-rich Vue 3 calendar component with support for multiple view
 
 [Live Demo](https://v-event-calendar.vercel.app/)
 
+![Iconify Icon Picker Screenshot](https://ik.imagekit.io/fuhht88og/public/vue-event-calendar.png)
+
 ## Installation
 
 ```bash
@@ -39,12 +41,13 @@ pnpm add v-event-calendar
 import { ref } from 'vue'
 import CalendarView from 'v-event-calendar'
 import 'v-event-calendar/style.css'
+import type { CalendarEvent } from 'v-event-calendar/types'
 
-const events = ref([
+const events = ref<CalendarEvent[]>([
    {
       id: '1',
       title: 'Team Meeting',
-      start: '2025-01-20T10:00:00.000Z',
+      start: '2025-01-20T10:00:00.000Z', // Uses ISO format
       end: '2025-01-20T11:00:00.000Z',
       backgroundColor: '#3b82f6',
       textColor: '#ffffff',
@@ -268,6 +271,7 @@ const goToSpecificDate = () => {
 | `goToNext`     | -                                   | Navigate to next period     |
 | `setView`      | `view: 'month' \| 'week' \| 'date'` | Change the calendar view    |
 | `selectDate`   | `date: Date`                        | Select a specific date      |
+| `forceUpdate`  | -                                   | Force update the calendar   |
 
 ## Slots
 
