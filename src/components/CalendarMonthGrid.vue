@@ -1,5 +1,3 @@
-src/components/CalendarMonthGrid.vue
-
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import Draggable from 'vuedraggable'
@@ -7,6 +5,7 @@ import CalendarDay from './CalendarDay.vue'
 import ScrollableWrapper from './Scrollablar.vue'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarEvent, CalendarMonth } from '../types'
+import { isEventAllDay } from '../utils/eventUtils'
 import {
    calculateAllDayEventLayout,
    calculateMultiDayEventCountForDay,
@@ -140,7 +139,7 @@ const calendarHandleDragEnd = (event: any) => {
                <template #item="{ element: layout, index }">
                   <div
                      :data-event-id="layout.event.id"
-                     :data-event-all-day="layout.event.allDay"
+                     :data-event-all-day="isEventAllDay(layout.event)"
                      :data-is-multi-day="isEventMultiDay(layout.event)"
                      class="multi-day-event-container"
                      :style="{
