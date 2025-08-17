@@ -1,3 +1,5 @@
+src/App.vue
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import CalendarView from './components/CalendarView.vue'
@@ -14,13 +16,14 @@ const handleEventClick = (event: CalendarEvent) => {
    alert(`Event: ${event.title}\nTime: ${new Date(event.start).toLocaleString()}`)
 }
 
-const handleEventCreate = (date: Date, start: string, end?: string) => {
-   console.log('handleEventCreate :>> ')
+const handleEventCreate = (date: Date, start: string, end?: string, duration?: number) => {
+   console.log('handleEventCreate with duration :>> ', duration)
    const newEvent: CalendarEvent = {
       id: Date.now().toString(),
       title: 'New Event',
       start: start,
       end: end,
+      duration: duration,
       backgroundColor: '#8b5cf6',
       textColor: '#ffffff',
       description: 'A new event',
@@ -38,15 +41,16 @@ const handleDateChange = (date: Date) => {
    console.log('Date changed to:', date)
 }
 
-const handleEventUpdate = (eventId: string, start: string, end?: string) => {
+const handleEventUpdate = (eventId: string, start: string, end?: string, duration?: number) => {
    const eventIndex = sampleEvents.value.findIndex((e) => e.id === eventId)
    if (eventIndex !== -1) {
       sampleEvents.value[eventIndex] = {
          ...sampleEvents.value[eventIndex],
          start,
          end,
+         duration,
       }
-      console.log('Event updated:', eventId, start, end)
+      console.log('Event updated with duration:', eventId, start, end, duration)
    }
 }
 
