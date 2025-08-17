@@ -7,6 +7,7 @@ import type {
    CalendarViewConfig,
    CalendarEventCreateData,
 } from '../types/index'
+import { isEventAllDay } from '../utils/eventUtils'
 
 import {
    formatDate,
@@ -96,7 +97,6 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
             date: cell.date,
             dateString: cell.dateString,
             timeSlots: generateTimeSlots(cell.date),
-            allDayEvents: cell.events.filter((e) => e.allDay),
          })),
       }
    })
@@ -151,7 +151,7 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
       for (let hour = 0; hour < 24; hour++) {
          const timeString = `${hour.toString().padStart(2, '0')}:00`
          const hourEvents = dayEvents.filter((event) => {
-            if (event.allDay) return false
+            if (isEventAllDay(event)) return false
             const eventStartTime = getEventStartTime(event)
             if (!eventStartTime) return false
             const eventHour = parseInt(eventStartTime.split(':')[0])
@@ -234,12 +234,13 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
       time?: string,
       allDay?: boolean
    ): CalendarEventCreateData => {
-      const dayEvents = calendarGetEventsForDate(date).filter((e) => !e.allDay && e.end)
+      const dayEvents = calendarGetEventsForDate(date).filter((e) => !isEventAllDay(e) && e.end)
       let startTime = time
       let endTime = time ? addHourToTime(time) : undefined
 
       if (allDay) {
-         return createEventFromDateTime(date, undefined, undefined, true)
+         const { start, end } = createEventFromDateTime(date, undefined, undefined, true)
+         return { start, end }
       }
 
       if (!time) {
@@ -273,8 +274,8 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
             }
          }
       }
-
-      return createEventFromDateTime(date, startTime, endTime, false)
+      const { start, end } = createEventFromDateTime(date, startTime, endTime, false)
+      return { start, end }
    }
 
    const addHourToTime = (timeString: string): string => {
