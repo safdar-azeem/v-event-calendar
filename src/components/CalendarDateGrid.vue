@@ -12,12 +12,12 @@ import { useCalendarGrid } from '../composables/useCalendarGrid'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
 
 interface CalendarDateGridProps {
-   calendarCells: CalendarCell[]
-   allowEventCreation?: boolean
-   hourHeight?: number
-   startHour?: number
    endHour?: number
+   startHour?: number
+   hourHeight?: number
+   calendarCells: CalendarCell[]
    timeFormat?: '12h' | '24h'
+   allowEventCreation?: boolean
 }
 
 interface CalendarDateGridEmits {
