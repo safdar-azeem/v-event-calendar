@@ -220,7 +220,6 @@ interface CalendarEvent {
    title: string
    start: string // ISO 8601 format
    end?: string // ISO 8601 format
-   allDay?: boolean
    backgroundColor: string
    textColor: string
    description?: string
