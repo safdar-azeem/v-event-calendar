@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import type { CalendarCell, TimedEventLayout } from '../types'
+import type { CalendarCell } from '../types'
 import {
    createEventFromDateTime,
    formatDisplayTime,
@@ -7,7 +7,6 @@ import {
    getEventStartTime,
    isEventMultiDay,
 } from '../utils/calendarDateUtils'
-import { calculateTimedEventLayout } from '../utils/calendarLayoutUtils'
 import { useCalendarEventDragCreate } from './useCalendarEventDragCreate'
 import { isEventAllDay } from '../utils/eventUtils'
 
@@ -52,19 +51,6 @@ export function useCalendarGrid(
          })
       }
       return result
-   })
-
-   const timedEventLayouts = computed(() => {
-      const allLayouts = new Map<string, Map<string, TimedEventLayout>>()
-      const cells = props.calendarCells || (cell.value ? [cell.value] : [])
-
-      cells.forEach((cell) => {
-         const timedEvents = cell.events.filter((e) => !isEventAllDay(e) && !isEventMultiDay(e))
-         const layoutForDay = calculateTimedEventLayout(timedEvents)
-         allLayouts.set(cell.dateString, layoutForDay)
-      })
-
-      return allLayouts
    })
 
    const getEventsForTimeSlot = (cellOrHour: CalendarCell | number, hour?: number) => {
@@ -208,7 +194,6 @@ export function useCalendarGrid(
       if (!targetCell) return
 
       const { startTime, endTime } = getNextAvailableTimeForSlot(targetCell, targetHour)
-      const eventData = createEventFromDateTime(targetCell.date, startTime, endTime, false)
       emit('timeSlotClick', targetCell.date, startTime)
    }
 
@@ -304,7 +289,6 @@ export function useCalendarGrid(
       getMaxEventsInHourSlot,
       getTimeSlotHeight,
       getEventHeight,
-      timedEventLayouts,
       getNextAvailableTimeForSlot,
       handleTimeSlotClick,
       handleTimeSlotMouseDown,
