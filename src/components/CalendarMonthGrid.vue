@@ -3,22 +3,23 @@ import { ref } from 'vue'
 import Draggable from 'vuedraggable'
 import CalendarDay from './CalendarDay.vue'
 import ScrollableWrapper from './Scrollablar.vue'
+import { isEventAllDay } from '../utils/eventUtils'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarEvent, CalendarMonth } from '../types'
-import { isEventAllDay } from '../utils/eventUtils'
+
 import {
-   createEventFromDateTime,
-   findNextAvailableTime,
    isEventMultiDay,
+   findNextAvailableTime,
+   createEventFromDateTime,
 } from '../utils/calendarDateUtils'
 
 interface CalendarMonthGridProps {
-   calendarMonth: CalendarMonth
    dayNames: string[]
-   showWeekNumbers?: boolean
-   allowEventCreation?: boolean
    maxEventsPerDay?: number
+   calendarMonth: CalendarMonth
+   showWeekNumbers?: boolean
    timeFormat?: '12h' | '24h'
+   allowEventCreation?: boolean
 }
 
 interface CalendarMonthGridEmits {
@@ -96,15 +97,15 @@ const calendarHandleDragEnd = (event: any) => {
                :key="cell.dateString"
                :cell="cell"
                view="month"
-               :multiDayTrackCount="cell.multiDayTrackCount"
-               :max-events-display="maxEventsPerDay"
-               :allow-event-creation="allowEventCreation"
                :time-format="props.timeFormat"
-               :class="`${index !== week.days?.length - 1 && 'border-right'} group calendar-day-cell`"
-               @dragStart="disabledAllDayDrag = true"
+               :max-events-display="maxEventsPerDay"
                @dragEnd="disabledAllDayDrag = false"
+               @dragStart="disabledAllDayDrag = true"
                @day-click="$emit('dayClick', $event)"
+               :allow-event-creation="allowEventCreation"
                @event-click="$emit('eventClick', $event)"
+               :multiDayTrackCount="cell.multiDayTrackCount"
+               :class="`${index !== week.days?.length - 1 && 'border-right'} group calendar-day-cell`"
                @create-event="
                   (date, start, end, duration) => $emit('createEvent', date, start, end, duration)
                "
