@@ -109,7 +109,13 @@ export function useCalendarDay(
       if (props.allowEventCreation) {
          const { startTime, endTime } = calendarGetNextAvailableTime(props.cell.date)
          const eventData = createEventFromDateTime(props.cell.date, startTime, endTime, false)
-         emit('createEvent', props.cell.date, eventData.start, eventData.end)
+         const duration = Math.max(
+            15,
+            (new Date(eventData.end || eventData.start).getTime() -
+               new Date(eventData.start).getTime()) /
+               60000
+         )
+         emit('createEvent', props.cell.date, eventData.start, eventData.end, duration)
       }
    }
 
@@ -170,7 +176,8 @@ export function useCalendarDay(
          }
       }
 
-      emit('eventUpdate', eventId, newStart, newEnd)
+      const duration = Math.max(15, (newEnd.getTime() - newStart.getTime()) / 60000)
+      emit('eventUpdate', eventId, newStart.toISOString(), newEnd.toISOString(), duration)
    }
 
    const calendarDayNumberClasses = computed(() => {
