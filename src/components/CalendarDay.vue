@@ -87,11 +87,11 @@ const {
          class="events-list"
          @start="emit('dragStart')"
          @end="
-            (event:any) => {
-               calendarHandleDragEnd(event)
-               emit('dragEnd')
-            }
-         "
+        (event: any) => {
+          calendarHandleDragEnd(event)
+          emit('dragEnd')
+        }
+      "
          :data-col="props.cell.date"
          ghost-class="opacity-50">
          <template #item="{ element: event, index }">
