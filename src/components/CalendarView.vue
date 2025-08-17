@@ -1,3 +1,5 @@
+src/components/CalendarView.vue
+
 <script setup lang="ts">
 import '../css/style.css'
 import { computed, watch } from 'vue'
@@ -20,11 +22,11 @@ interface CalendarViewProps {
 
 interface CalendarViewEmits {
    (e: 'eventClick', event: CalendarEvent): void
-   (e: 'eventCreate', date: Date, start: string, end?: string): void
+   (e: 'eventCreate', date: Date, start: string, end?: string, duration?: number): void
    (e: 'dayClick', date: Date): void
    (e: 'viewChange', view: CalendarView): void
    (e: 'dateChange', date: Date): void
-   (e: 'eventUpdate', eventId: string, start: string, end?: string): void
+   (e: 'eventUpdate', eventId: string, start: string, end?: string, duration?: number): void
 }
 
 const props = withDefaults(defineProps<CalendarViewProps>(), {
@@ -88,15 +90,19 @@ const handleEventClick = (event: CalendarEvent) => {
    emit('eventClick', event)
 }
 
-const handleCreateEvent = (date: Date, start: string, end?: string) => {
+const handleCreateEvent = (date: Date, start: string, end?: string, duration?: number) => {
    if (props.allowEventCreation) {
-      emit('eventCreate', date, start, end)
+      const calculatedDuration =
+         duration || Math.max(15, (new Date(end || start).getTime() - new Date(start).getTime()) / 60000)
+      emit('eventCreate', date, start, end, calculatedDuration)
    }
 }
 
-const handleEventUpdate = (eventId: string, start: string, end?: string) => {
+const handleEventUpdate = (eventId: string, start: string, end?: string, duration?: number) => {
    if (props.allowEventEditing) {
-      emit('eventUpdate', eventId, start, end)
+      const calculatedDuration =
+         duration || Math.max(15, (new Date(end || start).getTime() - new Date(start).getTime()) / 60000)
+      emit('eventUpdate', eventId, start, end, calculatedDuration)
    }
 }
 
@@ -141,7 +147,8 @@ const handleTimeSlotClick = (date: Date, time: string) => {
    startDate.setHours(startHour, startMinute, 0, 0)
    endDate.setHours(endHour, endMinute, 0, 0)
 
-   handleCreateEvent(date, startDate.toISOString(), endDate.toISOString())
+   const duration = Math.max(15, (endDate.getTime() - startDate.getTime()) / 60000)
+   handleCreateEvent(date, startDate.toISOString(), endDate.toISOString(), duration)
 }
 
 watch(
