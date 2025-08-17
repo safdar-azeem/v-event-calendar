@@ -5,7 +5,6 @@ export interface CalendarEvent {
    title: string
    start: string // ISO 8601, e.g., "2025-08-09T10:00:00Z"
    end?: string // ISO 8601
-   allDay?: boolean
    duration?: number
    backgroundColor: string
    textColor: string
@@ -61,7 +60,6 @@ export interface CalendarDay {
    date: Date
    dateString: string
    timeSlots: CalendarTimeSlot[]
-   allDayEvents: CalendarEvent[]
 }
 
 export interface CalendarNavigation {
@@ -74,7 +72,6 @@ export interface CalendarNavigation {
 export interface CalendarEventCreateData {
    start: string // ISO 8601
    end?: string // ISO 8601
-   allDay?: boolean
    title?: string
 }
 
