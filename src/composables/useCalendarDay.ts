@@ -6,6 +6,7 @@ import {
    getEventStartTime,
    isEventMultiDay,
 } from '../utils/calendarDateUtils'
+import { isEventAllDay } from '../utils/eventUtils'
 
 export function useCalendarDay(
    props: {
@@ -42,12 +43,12 @@ export function useCalendarDay(
       if (props.view !== 'month') {
          return props.cell.events
       }
-      return props.cell.events.filter((event) => !event.allDay && !isEventMultiDay(event))
+      return props.cell.events.filter((event) => !isEventAllDay(event) && !isEventMultiDay(event))
    })
 
    const hasMultiDayEvent = computed(() => {
       if (props.view !== 'month') return false
-      return props.cell.events.some((event) => event.allDay || isEventMultiDay(event))
+      return props.cell.events.some((event) => isEventAllDay(event) || isEventMultiDay(event))
    })
 
    const calendarGetNextAvailableTime = (newIndex: any) => {
@@ -55,7 +56,7 @@ export function useCalendarDay(
 
       console.log('m :>> ', m)
 
-      const existingEvents = props.cell.events.filter((event) => !event.allDay && event.end)
+      const existingEvents = props.cell.events.filter((event) => !isEventAllDay(event) && event.end)
 
       if (!existingEvents.length) {
          return { startTime: '09:00', endTime: '10:00' }
