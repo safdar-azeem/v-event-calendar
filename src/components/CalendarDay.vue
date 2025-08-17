@@ -20,8 +20,15 @@ interface CalendarDayEmits {
    (e: 'eventClick', event: CalendarEvent): void
    (e: 'dragStart'): void
    (e: 'dragEnd'): void
-   (e: 'createEvent', date: Date, startTime: string, endTime: string): void
-   (e: 'eventUpdate', eventId: string, newDate: string, newStartTime?: string, newEndTime?: string): void
+   (e: 'createEvent', date: Date, startTime: string, endTime: string, duration: number): void
+   (
+      e: 'eventUpdate',
+      eventId: string,
+      newDate: string,
+      newStartTime?: string,
+      newEndTime?: string,
+      duration?: number
+   ): void
 }
 
 const props = withDefaults(defineProps<CalendarDayProps>(), {
@@ -92,7 +99,13 @@ const {
                :data-event-id="event.id"
                :data-event-startTime="event.start"
                :data-event-endTime="event.end"
-               :data-event-duration="event.duration">
+               :data-event-duration="
+                  Math.max(
+                     15,
+                     (new Date(event.end || event.start).getTime() - new Date(event.start).getTime()) /
+                        60000
+                  )
+               ">
                <CalendarEventComponent
                   :event="event"
                   :view="view"
