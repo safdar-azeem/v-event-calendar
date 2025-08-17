@@ -54,8 +54,6 @@ export function useCalendarDay(
    const calendarGetNextAvailableTime = (newIndex: any) => {
       const m = props.cell.events[newIndex]
 
-      console.log('m :>> ', m)
-
       const existingEvents = props.cell.events.filter((event) => !isEventAllDay(event) && event.end)
 
       if (!existingEvents.length) {
