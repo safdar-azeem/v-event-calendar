@@ -69,7 +69,7 @@ const {
          v-if="hasMultiDayEvent"
          class="flex-shrink-0"
          :style="{
-            minHeight: multiDayTrackCount == 1 ? '35px' : '29.5px',
+            minHeight: multiDayTrackCount == 1 ? '25px' : '21.5px',
          }"
          v-for="_ in multiDayTrackCount"></div>
 
