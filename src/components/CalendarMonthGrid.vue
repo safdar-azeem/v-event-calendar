@@ -131,7 +131,7 @@ const calendarHandleDragEnd = (event: any) => {
                      :data-is-multi-day="isEventMultiDay(layout.event)"
                      class="multi-day-event-container"
                      :style="{
-                        top: `calc(${25 + layout.track * 24}px - ${index * 3}px)`,
+                        top: `calc(${27 + layout.track * 20}px)`,
                         left: `calc(${(layout.startDayIndex / 7) * 100}% + 2px)`,
                         width: `calc(${(layout.span / 7) * 99}%)`,
                      }">
