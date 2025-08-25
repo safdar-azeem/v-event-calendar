@@ -95,9 +95,10 @@ const eventStyle = computed(() => {
    ) {
       const duration = getEventDurationMinutes()
       const pixelsPerMinute = (props.hourHeight ?? 60) / 60
-      const calculatedHeight = Math.max(28, duration * pixelsPerMinute - 2)
-      baseStyle.height = `${calculatedHeight}px`
-      baseStyle.minHeight = `${calculatedHeight}px`
+      const calculatedHeight = Math.max(28, duration * pixelsPerMinute)
+
+      baseStyle.height = `${calculatedHeight - 3}px`
+      baseStyle.minHeight = `${calculatedHeight - 3}px`
       baseStyle.position = 'absolute'
 
       const startTime = getEventStartTime(props.event)
@@ -105,7 +106,7 @@ const eventStyle = computed(() => {
          const startTimeData = parseTime(startTime)
          const startMinutes = startTimeData?.minute ?? 0
          const topOffset = startMinutes * pixelsPerMinute
-         baseStyle.top = `${topOffset + 2}px`
+         baseStyle.top = `${topOffset + 1}px`
       }
 
       if (props.layout) {
