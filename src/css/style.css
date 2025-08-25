@@ -7,7 +7,7 @@
    --calendar-hover-color: #f0f4f8;
    --calendar-date-label-size: 0.62em;
    --calendar-date-font-weight: 500;
-   --calendar-day-header-font-size: 0.8rem;
+   --calendar-day-header-font-size: 0.8em;
    --calendar-current-time-color: #ef4444;
 }
 
@@ -46,7 +46,6 @@
    height: 100%;
    display: flex;
    flex-direction: column;
-   background: white;
    overflow: hidden;
    border-radius: 8px;
    min-height: 600px;
@@ -134,7 +133,7 @@
 .month-header-cell {
    padding: 8px 12px;
    text-align: center;
-   font-size: 0.875rem;
+   font-size: 0.875em;
    border-bottom: 1px solid var(--calendar-border-color);
    font-weight: 600;
    color: var(--calendar-text-color);
@@ -227,7 +226,7 @@
 
 .time-slot-label {
    border-top: 1px solid var(--calendar-border-color);
-   font-size: 0.75rem;
+   font-size: 0.75em;
    color: #808690;
    padding-right: 8px;
    text-align: right;
@@ -259,7 +258,7 @@
 }
 
 .calendar-time-slot:hover {
-   background-color: var(--calendar-border-color);
+   background-color: var(--calendar-hover-color);
 }
 
 .calendar-time-slot.drag-creating {
@@ -284,9 +283,9 @@
 /* Calendar Events */
 .calendar-event {
    position: relative;
-   padding: 4px 8px;
+   padding: 0.1em 0.5em;
    color: white;
-   font-size: 0.1rem;
+   font-size: 0.1em;
    cursor: pointer;
    transition: all 0.2s;
    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -300,12 +299,8 @@
    align-items: center;
 }
 
-.calendar-event:hover {
-   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-}
-
 .calendar-event.compact {
-   font-size: 0.5rem;
+   font-size: 0.5em;
    padding: 2px 6px;
    min-height: 18px;
 }
@@ -326,7 +321,7 @@
 .event-title {
    overflow: hidden;
    text-overflow: ellipsis;
-   font-size: 0.5rem;
+   font-size: 0.5em;
    font-weight: 500;
    flex: 1;
    margin-right: 4px;
@@ -419,7 +414,7 @@
 .all-day-label {
    border-right: 1px solid var(--calendar-border-color);
    padding: 8px;
-   font-size: 0.75rem;
+   font-size: 0.75em;
    text-align: right;
    padding-right: 8px;
    font-weight: 500;
@@ -537,7 +532,7 @@
    border-radius: 6px;
    padding: 4px 8px;
    color: white;
-   font-size: 0.875rem;
+   font-size: 0.875em;
    cursor: pointer;
    overflow: hidden;
    transition: none;
@@ -713,7 +708,7 @@
 .multi-day-event-container {
    position: absolute;
    z-index: 10;
-   font-size: 0.75rem;
+   font-size: 0.75em;
    pointer-events: auto;
 }
 
@@ -728,7 +723,7 @@
    display: flex;
    flex-direction: column;
    gap: 4px;
-   font-size: 0.8rem;
+   font-size: 0.8em;
 }
 
 /* Fade Animation */
@@ -749,7 +744,7 @@
    }
 
    .calendar-week-grid {
-      font-size: 0.875rem;
+      font-size: 0.875em;
    }
 
    .calendar-time-slot {
@@ -757,7 +752,7 @@
    }
 
    .calendar-date-grid {
-      font-size: 0.875rem;
+      font-size: 0.875em;
    }
 }
 
