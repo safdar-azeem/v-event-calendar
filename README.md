@@ -17,7 +17,7 @@ A powerful, feature-rich Vue 3 calendar component with support for multiple view
 
 ## Demo
 
-[Live Demo](https://v-event-calendar.vercel.app/)
+[Live Demo](https://plan.builto.com)
 
 ![Iconify Icon Picker Screenshot](https://ik.imagekit.io/fuhht88og/public/vue-event-calendar.png)
 
