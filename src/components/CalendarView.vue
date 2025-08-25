@@ -176,55 +176,68 @@ defineExpose({
 
 <template>
    <div class="calendar-view">
-      <slot name="header" v-bind="{ currentTitle }" />
-      <div class="flex-1">
-         <CalendarMonthGrid
-            v-if="calendarView === 'month'"
-            @day-click="handleDayClick"
-            :day-names="calendarDayNames"
-            :calendar-month="calendarMonth"
-            @event-click="handleEventClick"
-            :time-format="config.timeFormat"
-            @create-event="handleCreateEvent"
-            @event-update="handleEventUpdate"
-            :show-week-numbers="showWeekNumbers"
-            :max-events-per-day="maxEventsPerDay"
-            :allow-event-creation="allowEventCreation">
-            <template #event="props">
-               <slot name="event" v-bind="props" />
-            </template>
-         </CalendarMonthGrid>
-         <CalendarWeekGrid
-            v-else-if="calendarView === 'week'"
-            :calendar-cells="calendarCells"
-            @day-click="handleDayClick"
-            :day-names="calendarDayNames"
-            @event-click="handleEventClick"
-            :hour-height="config.hourHeight"
-            :time-format="config.timeFormat"
-            @create-event="handleCreateEvent"
-            @event-update="handleEventUpdate"
-            @time-slot-click="handleTimeSlotClick"
-            :allow-event-creation="allowEventCreation">
-            <template #event="props">
-               <slot name="event" v-bind="props" />
-            </template>
-         </CalendarWeekGrid>
-         <CalendarDateGrid
-            v-else-if="calendarView === 'date'"
-            :calendar-cells="calendarCells"
-            @day-click="handleDayClick"
-            @event-click="handleEventClick"
-            :hour-height="config.hourHeight"
-            :time-format="config.timeFormat"
-            @create-event="handleCreateEvent"
-            @event-update="handleEventUpdate"
-            @time-slot-click="handleTimeSlotClick"
-            :allow-event-creation="allowEventCreation">
-            <template #event="props">
-               <slot name="event" v-bind="props" />
-            </template>
-         </CalendarDateGrid>
-      </div>
+      <slot
+         name="header"
+         v-bind="{
+            currentTitle,
+            view: calendarView,
+            canGoNext,
+            goToDate: calendarGoToDate,
+            goToNext: handleGoToNext,
+            setView: calendarSetView,
+            goToToday: handleGoToToday,
+            canGoPrevious: canGoPrevious,
+            selectDate: calendarSelectDate,
+            goToPrevious: handleGoToPrevious,
+            currentDate: calendarCurrentDate,
+            selectedDate: calendarSelectedDate,
+         }" />
+      <CalendarMonthGrid
+         v-if="calendarView === 'month'"
+         @day-click="handleDayClick"
+         :day-names="calendarDayNames"
+         :calendar-month="calendarMonth"
+         @event-click="handleEventClick"
+         :time-format="config.timeFormat"
+         @create-event="handleCreateEvent"
+         @event-update="handleEventUpdate"
+         :show-week-numbers="showWeekNumbers"
+         :max-events-per-day="maxEventsPerDay"
+         :allow-event-creation="allowEventCreation">
+         <template #event="props">
+            <slot name="event" v-bind="props" />
+         </template>
+      </CalendarMonthGrid>
+      <CalendarWeekGrid
+         v-else-if="calendarView === 'week'"
+         :calendar-cells="calendarCells"
+         @day-click="handleDayClick"
+         :day-names="calendarDayNames"
+         @event-click="handleEventClick"
+         :hour-height="config.hourHeight"
+         :time-format="config.timeFormat"
+         @create-event="handleCreateEvent"
+         @event-update="handleEventUpdate"
+         @time-slot-click="handleTimeSlotClick"
+         :allow-event-creation="allowEventCreation">
+         <template #event="props">
+            <slot name="event" v-bind="props" />
+         </template>
+      </CalendarWeekGrid>
+      <CalendarDateGrid
+         v-else-if="calendarView === 'date'"
+         :calendar-cells="calendarCells"
+         @day-click="handleDayClick"
+         @event-click="handleEventClick"
+         :hour-height="config.hourHeight"
+         :time-format="config.timeFormat"
+         @create-event="handleCreateEvent"
+         @event-update="handleEventUpdate"
+         @time-slot-click="handleTimeSlotClick"
+         :allow-event-creation="allowEventCreation">
+         <template #event="props">
+            <slot name="event" v-bind="props" />
+         </template>
+      </CalendarDateGrid>
    </div>
 </template>
