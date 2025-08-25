@@ -80,7 +80,7 @@ const allDayLayout = computed(() => {
 const allDaySectionHeight = computed(() => {
    if (allDayLayout.value.length === 0) return 0
    const maxTrack = Math.max(...allDayLayout.value.map((l) => l.track))
-   return (maxTrack + 1) * 17 + 2
+   return (maxTrack + 1) * 21.5 + 2.5
 })
 
 watch(
@@ -195,7 +195,7 @@ const handleAllDayDragEnd = (event: any) => {
          <div class="all-day-label">All-day</div>
 
          <div class="relative">
-            <div class="grid-cols-7" :style="{ height: `${allDaySectionHeight + 5}px` }"></div>
+            <div class="grid-cols-7" :style="{ height: `${allDaySectionHeight}px` }"></div>
             <Draggable
                :list="allDayLayout"
                item-key="event.id"
@@ -220,7 +220,7 @@ const handleAllDayDragEnd = (event: any) => {
                      :style="{
                         left: `${(layout.startDayIndex / 7) * 100}%`,
                         width: `${(layout.span / 7) * 100}%`,
-                        top: `${layout.track * 20}px`,
+                        top: `${layout.track * 21}px`,
                      }">
                      <CalendarEventComponent
                         :event="layout.event"
@@ -302,7 +302,7 @@ const handleAllDayDragEnd = (event: any) => {
                               canResize
                               :event-index="index"
                               :compact="false"
-                              :hour-height="hourHeight - 0.7"
+                              :hour-height="hourHeight"
                               :time-format="props.timeFormat"
                               @click="handleEventClick"
                               @resize-update="handleEventResizeUpdateLocal"
