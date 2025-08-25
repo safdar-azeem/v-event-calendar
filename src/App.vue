@@ -94,6 +94,7 @@ const goToNext = () => {
                   :show-week-numbers="false"
                   :config="{
                      timeFormat: '12h',
+                     eventHeight: 150,
                   }"
                   @event-click="handleEventClick"
                   @event-create="handleEventCreate"
