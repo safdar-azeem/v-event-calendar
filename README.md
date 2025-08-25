@@ -39,7 +39,7 @@ pnpm add v-event-calendar
 ```vue
 <script setup>
 import { ref } from 'vue'
-import CalendarView from 'v-event-calendar'
+import Calendar from 'v-event-calendar'
 import 'v-event-calendar/style.css'
 import type { CalendarEvent } from 'v-event-calendar/types'
 
@@ -83,7 +83,7 @@ const handleEventUpdate = (eventId, start, end) => {
 </script>
 
 <template>
-   <CalendarView
+   <Calendar
       :events="events"
       initial-view="month"
       :allow-event-creation="true"
@@ -108,7 +108,7 @@ import 'v-event-calendar/style.css'
 ```vue
 <script setup>
 import { ref } from 'vue'
-import CalendarView from 'v-event-calendar'
+import Calendar from 'v-event-calendar'
 
 const currentView = ref('month')
 const calendarRef = ref()
@@ -124,7 +124,7 @@ const changeView = (view) => {
 </script>
 
 <template>
-   <CalendarView
+   <Calendar
       ref="calendarRef"
       :events="events"
       :initial-view="currentView"
@@ -151,7 +151,7 @@ const changeView = (view) => {
             </div>
          </div>
       </template>
-   </CalendarView>
+   </Calendar>
 </template>
 ```
 
@@ -159,7 +159,7 @@ const changeView = (view) => {
 
 ```vue
 <script setup>
-import CalendarView from 'v-event-calendar'
+import Calendar from 'v-event-calendar'
 
 const handleEventUpdate = (eventId, start, end) => {
    const eventIndex = events.value.findIndex((e) => e.id === eventId)
@@ -174,7 +174,7 @@ const handleEventUpdate = (eventId, start, end) => {
 </script>
 
 <template>
-   <CalendarView
+   <Calendar
       :events="events"
       initial-view="month"
       :allow-event-editing="true"
@@ -188,7 +188,7 @@ const handleEventUpdate = (eventId, start, end) => {
             </div>
          </div>
       </template>
-   </CalendarView>
+   </Calendar>
 </template>
 ```
 
@@ -259,7 +259,7 @@ const goToSpecificDate = () => {
 </script>
 
 <template>
-   <CalendarView ref="calendarRef" />
+   <Calendar ref="calendarRef" />
 </template>
 ```
 
