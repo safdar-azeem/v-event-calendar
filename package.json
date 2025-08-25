@@ -1,6 +1,6 @@
 {
   "name": "v-event-calendar",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Lightweight, Vue 3 Event Calendar With Event Scheduling, Multiple Views, Drag-&-Drop, Resizing and Customizable Styling",
   "type": "module",
   "author": "safdar-azeem",
