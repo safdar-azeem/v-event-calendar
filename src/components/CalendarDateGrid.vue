@@ -185,7 +185,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                               :event-index="index"
                               canResize
                               :compact="false"
-                              :hour-height="hourHeight - 4"
+                              :hour-height="hourHeight"
                               :time-format="props.timeFormat"
                               @click="handleEventClick"
                               @resize-update="handleEventResizeUpdateLocal"
