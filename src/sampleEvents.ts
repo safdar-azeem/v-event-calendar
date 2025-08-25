@@ -109,6 +109,33 @@ const sampleEvents = ref<CalendarEvent[]>([
       textColor: '#ffffff',
       description: 'Two-day technical workshop',
    },
+   {
+      id: '13',
+      title: 'Workshop',
+      start: withTime(9, 0, -1), // yesterday
+      end: withTime(17, 0, 0), // today
+      backgroundColor: '#0ea5e9',
+      textColor: '#ffffff',
+      description: 'Two-day technical workshop',
+   },
+   {
+      id: '14',
+      title: 'Workshop',
+      start: withTime(9, 0, -1), // yesterday
+      end: withTime(17, 0, 0), // today
+      backgroundColor: '#0ea5e9',
+      textColor: '#ffffff',
+      description: 'Two-day technical workshop',
+   },
+   {
+      id: '15',
+      title: 'Workshop',
+      start: withTime(9, 0, -1), // yesterday
+      end: withTime(17, 0, 0), // today
+      backgroundColor: '#0ea5e9',
+      textColor: '#ffffff',
+      description: 'Two-day technical workshop',
+   },
 ])
 
 export default sampleEvents
