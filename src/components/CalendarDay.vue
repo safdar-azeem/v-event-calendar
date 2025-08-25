@@ -71,9 +71,9 @@ const {
       <div
          class="flex-shrink-0"
          v-if="hasMultiDayEvent"
-         v-for="_ in multiDayTrackCount"
+         v-for="(_, index) in multiDayTrackCount"
          :style="{
-            minHeight: multiDayTrackCount == 1 ? '25px' : '21.5px',
+            minHeight: multiDayTrackCount == 1 ? '25px' : `${25 - (index + 1)}px`,
          }"></div>
 
       <Draggable
