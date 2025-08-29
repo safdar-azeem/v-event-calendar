@@ -18,7 +18,7 @@
     "task-calendar",
     "task-manager"
   ],
-  "homepage": "https://plan.builto.com",
+  "homepage": "https://planner.builto.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/safdar-azeem/v-event-calendar.git"
