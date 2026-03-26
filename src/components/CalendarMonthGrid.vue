@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import CalendarDay from './CalendarDay.vue'
 import ScrollableWrapper from './Scrollablar.vue'
-import { isEventAllDay } from '../utils/eventUtils'
+import { isEventAllDay, debounce } from '../utils/eventUtils'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarEvent, CalendarMonth } from '../types'
 
@@ -40,6 +40,10 @@ const props = withDefaults(defineProps<CalendarMonthGridProps>(), {
 
 const emit = defineEmits<CalendarMonthGridEmits>()
 
+const debouncedEventUpdate = debounce((eventId: string, start: string, end: string, duration: number) => {
+   emit('eventUpdate', eventId, start, end, duration)
+}, 100)
+
 const handleEventClick = (event: CalendarEvent) => {
    emit('eventClick', event)
 }
@@ -74,7 +78,7 @@ const calendarHandleDragEnd = (event: any) => {
          (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
             60000
       )
-      emit('eventUpdate', eventId, eventData.start, eventData.end, duration)
+      debouncedEventUpdate(eventId, eventData.start, eventData.end || '', duration)
    }
 }
 </script>
@@ -95,13 +99,6 @@ const calendarHandleDragEnd = (event: any) => {
             <CalendarDay
                v-for="(cell, index) in week.days"
                :key="cell.dateString"
-               v-memo="[
-                  cell.events.length,
-                  cell.isSelected,
-                  cell.isToday,
-                  cell.isCurrentMonth,
-                  disabledAllDayDrag
-               ]"
                :cell="cell"
                view="month"
                :time-format="props.timeFormat"
