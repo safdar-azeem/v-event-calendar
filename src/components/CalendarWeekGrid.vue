@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Icon from './Icon.vue'
-import Draggable from 'vuedraggable'
+import { VueDraggable } from 'vue-draggable-plus'
 import { computed, ref, watch } from 'vue'
 import ScrollableWrapper from './Scrollablar.vue'
 import CalendarEventComponent from './CalendarEvent.vue'
@@ -196,14 +196,12 @@ const handleAllDayDragEnd = (event: any) => {
 
          <div class="relative">
             <div class="grid-cols-7" :style="{ height: `${allDaySectionHeight}px` }"></div>
-            <Draggable
-               :list="allDayLayout"
-               item-key="event.id"
+            <VueDraggable
+               :modelValue="allDayLayout"
                group="calendar-events"
-               class="all-day-events-overlay"
-               ghost-class="opacity-50"
+               class="all-day-events-overlay w-full h-full"
+               ghostClass="opacity-50"
                :disabled="disabledAllDayDrag || isCurrentlyResizing || isDragCreating"
-               :component-data="{ class: 'w-full h-full all-day-events-overlay' }"
                @start="disabledAllDayDrag = true"
                @end="
             (event: any) => {
@@ -211,32 +209,32 @@ const handleAllDayDragEnd = (event: any) => {
               disabledAllDayDrag = false
             }
           ">
-               <template #item="{ element: layout }">
-                  <div
-                     :data-event-id="layout.event.id"
-                     :data-event-all-day="isEventAllDay(layout.event)"
-                     :data-is-multi-day="isEventMultiDay(layout.event)"
-                     class="all-day-event-item"
-                     :style="{
-                        left: `${(layout.startDayIndex / 7) * 100}%`,
-                        width: `${(layout.span / 7) * 100}%`,
-                        top: `${layout.track * 21}px`,
-                     }">
-                     <CalendarEventComponent
-                        :event="layout.event"
-                        view="week"
-                        :compact="true"
-                        rounded="sm"
-                        class="all-day-event"
-                        :time-format="props.timeFormat"
-                        @click="handleEventClick(layout.event)">
-                        <template #event="props">
-                           <slot name="event" v-bind="{ ...props, isMultiDay: true }" />
-                        </template>
-                     </CalendarEventComponent>
-                  </div>
-               </template>
-            </Draggable>
+               <div
+                  v-for="(layout, index) in allDayLayout"
+                  :key="layout.event.id"
+                  :data-event-id="layout.event.id"
+                  :data-event-all-day="isEventAllDay(layout.event)"
+                  :data-is-multi-day="isEventMultiDay(layout.event)"
+                  class="all-day-event-item"
+                  :style="{
+                     left: `${(layout.startDayIndex / 7) * 100}%`,
+                     width: `${(layout.span / 7) * 100}%`,
+                     top: `${layout.track * 21}px`,
+                  }">
+                  <CalendarEventComponent
+                     :event="layout.event"
+                     view="week"
+                     :compact="true"
+                     rounded="sm"
+                     class="all-day-event"
+                     :time-format="props.timeFormat"
+                     @click="handleEventClick(layout.event)">
+                     <template #event="props">
+                        <slot name="event" v-bind="{ ...props, isMultiDay: true }" />
+                     </template>
+                  </CalendarEventComponent>
+               </div>
+            </VueDraggable>
          </div>
       </div>
 
@@ -265,55 +263,54 @@ const handleAllDayDragEnd = (event: any) => {
                   @click="handleTimeSlotClick(cell, hourSlot.hour)"
                   @mousedown="handleTimeSlotMouseDown($event, cell, hourSlot.hour)"
                   @mouseup="handleTimeSlotMouseUp($event)">
-                  <Draggable
-                     :list="getEventsForTimeSlot(cell, hourSlot.hour)"
-                     item-key="id"
+                  <VueDraggable
+                     :modelValue="getEventsForTimeSlot(cell, hourSlot.hour)"
                      group="calendar-events"
                      class="calendar-events-container week-view"
                      @end="handleDragEnd"
-                     ghost-class="opacity-50"
+                     ghostClass="opacity-50"
                      :data-col="cell.dateString"
                      :animation="200"
                      :disabled="isDraggingDisabled || isCurrentlyResizing || isDragCreating">
-                     <template #item="{ element: event, index }">
-                        <div
-                           :data-event-id="event.id"
-                           :data-event-start="event.start"
-                           :data-event-end="event.end"
-                           :data-event-duration="
-                              Math.max(
-                                 15,
-                                 (new Date(event.end || event.start).getTime() -
-                                    new Date(event.start).getTime()) /
-                                    60000
-                              )
-                           "
-                           :style="{
-                              pointerEvents:
-                                 (isCurrentlyResizing && event.id !== getCurrentResizeEventId) ||
-                                 isDragCreating
-                                    ? 'none'
-                                    : 'auto',
-                           }">
-                           <CalendarEventComponent
-                              :event="event"
-                              :layout="cell.timedLayout?.get(event.id)"
-                              view="week"
-                              canResize
-                              :event-index="index"
-                              :compact="false"
-                              :hour-height="hourHeight"
-                              :time-format="props.timeFormat"
-                              @click="handleEventClick"
-                              @resize-update="handleEventResizeUpdateLocal"
-                              @resize-end="handleEventResizeEndLocal">
-                              <template #event="props">
-                                 <slot name="event" v-bind="props" />
-                              </template>
-                           </CalendarEventComponent>
-                        </div>
-                     </template>
-                  </Draggable>
+                     <div
+                        v-for="(event, index) in getEventsForTimeSlot(cell, hourSlot.hour)"
+                        :key="event.id"
+                        :data-event-id="event.id"
+                        :data-event-start="event.start"
+                        :data-event-end="event.end"
+                        :data-event-duration="
+                           Math.max(
+                              15,
+                              (new Date(event.end || event.start).getTime() -
+                                 new Date(event.start).getTime()) /
+                                 60000
+                           )
+                        "
+                        :style="{
+                           pointerEvents:
+                              (isCurrentlyResizing && event.id !== getCurrentResizeEventId) ||
+                              isDragCreating
+                                 ? 'none'
+                                 : 'auto',
+                        }">
+                        <CalendarEventComponent
+                           :event="event"
+                           :layout="cell.timedLayout?.get(event.id)"
+                           view="week"
+                           canResize
+                           :event-index="index"
+                           :compact="false"
+                           :hour-height="hourHeight"
+                           :time-format="props.timeFormat"
+                           @click="handleEventClick"
+                           @resize-update="handleEventResizeUpdateLocal"
+                           @resize-end="handleEventResizeEndLocal">
+                           <template #event="props">
+                              <slot name="event" v-bind="props" />
+                           </template>
+                        </CalendarEventComponent>
+                     </div>
+                  </VueDraggable>
 
                   <div
                      v-if="
