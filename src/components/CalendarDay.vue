@@ -108,7 +108,7 @@ const {
                   :event-index="index"
                   :compact="true"
                   :time-format="props.timeFormat"
-                  @click.stop="emit('eventClick', $event)">
+                  @click="emit('eventClick', $event)">
                   <template #event="props">
                      <slot name="event" v-bind="props" />
                   </template>
