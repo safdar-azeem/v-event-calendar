@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, onUnmounted } from 'vue'
 import { parseTime } from '../utils/calendarDateUtils'
 
 interface DragCreateState {
@@ -224,6 +224,10 @@ export function useCalendarEventDragCreate() {
    }
 
    const isDragCreating = computed(() => dragCreateState.value?.isDragging)
+
+   onUnmounted(() => {
+      cancelDragCreate()
+   })
 
    return {
       startDragCreate,
