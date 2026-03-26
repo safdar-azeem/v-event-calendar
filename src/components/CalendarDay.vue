@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Icon from './Icon.vue'
-import Draggable from 'vuedraggable'
+import { VueDraggable } from 'vue-draggable-plus'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarCell, CalendarEvent } from '../types'
 import { useCalendarDay } from '../composables/useCalendarDay'
@@ -76,9 +76,8 @@ const {
             minHeight: multiDayTrackCount == 1 ? '25px' : `${25 - (index + 1)}px`,
          }"></div>
 
-      <Draggable
-         :list="calendarDisplayedEvents"
-         item-key="id"
+      <VueDraggable
+         :modelValue="calendarDisplayedEvents"
          group="calendar-events"
          class="events-list"
          @start="emit('dragStart')"
@@ -89,32 +88,32 @@ const {
         }
       "
          :data-col="props.cell.date"
-         ghost-class="opacity-50">
-         <template #item="{ element: event, index }">
-            <div
-               :data-event-id="event.id"
-               :data-event-endTime="event.end"
-               :data-event-startTime="event.start"
-               :data-event-duration="
-                  Math.max(
-                     15,
-                     (new Date(event.end || event.start).getTime() - new Date(event.start).getTime()) /
-                        60000
-                  )
-               ">
-               <CalendarEventComponent
-                  :event="event"
-                  :view="view"
-                  :event-index="index"
-                  :compact="true"
-                  :time-format="props.timeFormat"
-                  @click="emit('eventClick', $event)">
-                  <template #event="props">
-                     <slot name="event" v-bind="props" />
-                  </template>
-               </CalendarEventComponent>
-            </div>
-         </template>
-      </Draggable>
+         ghostClass="opacity-50">
+         <div
+            v-for="(event, index) in calendarDisplayedEvents"
+            :key="event.id"
+            :data-event-id="event.id"
+            :data-event-endTime="event.end"
+            :data-event-startTime="event.start"
+            :data-event-duration="
+               Math.max(
+                  15,
+                  (new Date(event.end || event.start).getTime() - new Date(event.start).getTime()) /
+                     60000
+               )
+            ">
+            <CalendarEventComponent
+               :event="event"
+               :view="view"
+               :event-index="index"
+               :compact="true"
+               :time-format="props.timeFormat"
+               @click="emit('eventClick', $event)">
+               <template #event="props">
+                  <slot name="event" v-bind="props" />
+               </template>
+            </CalendarEventComponent>
+         </div>
+      </VueDraggable>
    </div>
 </template>
