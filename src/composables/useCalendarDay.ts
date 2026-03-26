@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import type { CalendarCell } from '../types'
+import { debounce } from '../utils/eventUtils'
 import {
    createEventFromDateTime,
    getEventEndTime,
@@ -17,6 +18,10 @@ export function useCalendarDay(
    },
    emit: any
 ) {
+   const debouncedDragEndUpdate = debounce((eventId: string, start: string, end: string, duration: number) => {
+      emit('eventUpdate', eventId, start, end, duration)
+   }, 100)
+
    const calendarDayClasses = computed(() => {
       const classes = ['relative', 'transition-colors', 'cursor-pointer', 'flex', 'flex-col']
 
@@ -176,7 +181,7 @@ export function useCalendarDay(
       }
 
       const duration = Math.max(15, (newEnd.getTime() - newStart.getTime()) / 60000)
-      emit('eventUpdate', eventId, newStart.toISOString(), newEnd.toISOString(), duration)
+      debouncedDragEndUpdate(eventId, newStart.toISOString(), newEnd.toISOString(), duration)
    }
 
    const calendarDayNumberClasses = computed(() => {
