@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import type { CalendarCell } from '../types'
-import { isEventAllDay } from '../utils/eventUtils'
+import { isEventAllDay, debounce } from '../utils/eventUtils'
 import { useCalendarEventDragCreate } from './useCalendarEventDragCreate'
 import {
    createEventFromDateTime,
@@ -24,6 +24,14 @@ export function useCalendarGrid(
 ) {
    const isDraggingDisabled = ref(false)
    const dragCreateTimeout = ref<any>(null)
+
+   // Extremely fast debounce strictly to settle drag & drop lifecycle without lagging the emit
+   const debouncedDragEndUpdate = debounce(
+      (eventId: string, start: string, end: string, duration: number) => {
+         emit('eventUpdate', eventId, start, end, duration)
+      },
+      100
+   )
 
    const { startDragCreate, isDragCreating, setEventCreateCallback, cancelDragCreate } =
       useCalendarEventDragCreate()
@@ -239,7 +247,7 @@ export function useCalendarGrid(
          (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
             60000
       )
-      emit('eventUpdate', eventId, eventData.start, eventData.end, duration)
+      debouncedDragEndUpdate(eventId, eventData.start, eventData.end || '', duration)
    }
 
    const getDayHeaderClass = (cell?: CalendarCell) => {
