@@ -192,7 +192,7 @@ const handleAllDayDragEnd = (event: any) => {
       </div>
 
       <div v-if="allDayLayout.length > 0" class="grid-template-time all-day-section">
-         <div class="all-day-label">All-day</div>
+         <div class="all-day-label" v-once>All-day</div>
 
          <div class="relative">
             <div class="grid-cols-7" :style="{ height: `${allDaySectionHeight}px` }"></div>
@@ -255,6 +255,12 @@ const handleAllDayDragEnd = (event: any) => {
                <div
                   v-for="hourSlot in hours"
                   :key="`${cell.dateString}-${hourSlot.hour}`"
+                  v-memo="[
+                     getEventsForTimeSlot(cell, hourSlot.hour).length,
+                     isDraggingDisabled,
+                     isCurrentlyResizing,
+                     isDragCreating
+                  ]"
                   :class="getTimeSlotClass(cell, hourSlot.hour)"
                   :style="{ height: `${getTimeSlotHeight(hourSlot.hour)}px` }"
                   :data-hour="hourSlot.hour"
