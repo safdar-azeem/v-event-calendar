@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onUnmounted } from 'vue'
 import type { CalendarEvent } from '../types'
 import { formatDisplayTime, getEventEndTime, getEventStartTime } from '../utils/calendarDateUtils'
 import { isEventAllDay } from '../utils/eventUtils'
@@ -332,6 +332,12 @@ export function useCalendarEventResize() {
          }
       }
    )
+
+   onUnmounted(() => {
+      if (resizeState.value.isResizing) {
+         cancelResize()
+      }
+   })
 
    return {
       startResize,
