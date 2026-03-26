@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import { CalendarEvent } from './types'
 
 // Utility to create ISO strings relative to today
@@ -9,7 +9,7 @@ function withTime(hours: number, minutes: number, dayOffset = 0) {
    return date.toISOString()
 }
 
-const sampleEvents = ref<CalendarEvent[]>([
+const sampleEvents = shallowRef<CalendarEvent[]>([
    {
       id: '1',
       title: 'Team Meeting',
