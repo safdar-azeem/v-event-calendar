@@ -441,6 +441,8 @@
    overflow: auto;
    scrollbar-gutter: stable;
    flex: 1;
+   will-change: transform;
+   contain: layout style;
 }
 
 .scrollable-wrapper::-webkit-scrollbar {
@@ -670,6 +672,8 @@
    height: 100%;
    flex: 1;
    overflow: auto;
+   will-change: transform;
+   contain: layout style;
 }
 
 .month-week {
