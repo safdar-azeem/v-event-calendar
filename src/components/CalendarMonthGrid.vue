@@ -95,6 +95,13 @@ const calendarHandleDragEnd = (event: any) => {
             <CalendarDay
                v-for="(cell, index) in week.days"
                :key="cell.dateString"
+               v-memo="[
+                  cell.events.length,
+                  cell.isSelected,
+                  cell.isToday,
+                  cell.isCurrentMonth,
+                  disabledAllDayDrag
+               ]"
                :cell="cell"
                view="month"
                :time-format="props.timeFormat"
