@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Draggable from 'vuedraggable'
+import { VueDraggable } from 'vue-draggable-plus'
 import CalendarDay from './CalendarDay.vue'
 import ScrollableWrapper from './Scrollablar.vue'
 import { isEventAllDay } from '../utils/eventUtils'
@@ -115,41 +115,39 @@ const calendarHandleDragEnd = (event: any) => {
                </template>
             </CalendarDay>
 
-            <Draggable
-               :list="week.allDayLayout || []"
-               item-key="event.id"
+            <VueDraggable
+               :modelValue="week.allDayLayout || []"
                group="calendar-events"
-               class="all-day-events-overlay"
-               ghost-class="opacity-50"
+               class="all-day-events-overlay w-full h-full"
+               ghostClass="opacity-50"
                :disabled="disabledAllDayDrag"
-               :component-data="{ class: 'w-full h-full' }"
                @end="calendarHandleDragEnd">
-               <template #item="{ element: layout, index }">
-                  <div
-                     :data-event-id="layout.event.id"
-                     :data-event-all-day="isEventAllDay(layout.event)"
-                     :data-is-multi-day="isEventMultiDay(layout.event)"
-                     class="multi-day-event-container"
-                     :style="{
-                        top: `calc(${27 + layout.track * 20}px)`,
-                        left: `calc(${(layout.startDayIndex / 7) * 100}% + 2px)`,
-                        width: `calc(${(layout.span / 7) * 99}%)`,
-                     }">
-                     <CalendarEventComponent
-                        :event="layout.event"
-                        view="month"
-                        :compact="true"
-                        rounded="sm"
-                        class="multi-day-event"
-                        :time-format="props.timeFormat"
-                        @click="handleEventClick(layout.event)">
-                        <template #event="props">
-                           <slot name="event" v-bind="props" />
-                        </template>
-                     </CalendarEventComponent>
-                  </div>
-               </template>
-            </Draggable>
+               <div
+                  v-for="(layout, index) in week.allDayLayout || []"
+                  :key="layout.event.id"
+                  :data-event-id="layout.event.id"
+                  :data-event-all-day="isEventAllDay(layout.event)"
+                  :data-is-multi-day="isEventMultiDay(layout.event)"
+                  class="multi-day-event-container"
+                  :style="{
+                     top: `calc(${27 + layout.track * 20}px)`,
+                     left: `calc(${(layout.startDayIndex / 7) * 100}% + 2px)`,
+                     width: `calc(${(layout.span / 7) * 99}%)`,
+                  }">
+                  <CalendarEventComponent
+                     :event="layout.event"
+                     view="month"
+                     :compact="true"
+                     rounded="sm"
+                     class="multi-day-event"
+                     :time-format="props.timeFormat"
+                     @click="handleEventClick(layout.event)">
+                     <template #event="props">
+                        <slot name="event" v-bind="props" />
+                     </template>
+                  </CalendarEventComponent>
+               </div>
+            </VueDraggable>
          </div>
       </ScrollableWrapper>
    </div>
