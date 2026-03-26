@@ -100,7 +100,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
 <template>
    <div class="calendar-date-grid">
       <div v-if="allDayEvents.length > 0" class="grid-template-time all-day-section">
-         <div class="all-day-label">All-day</div>
+         <div class="all-day-label" v-once>All-day</div>
          <div class="all-day-events">
             <CalendarEventComponent
                v-for="event in allDayEvents"
@@ -140,6 +140,12 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                <div
                   v-for="hourSlot in hours"
                   :key="`${cell.dateString}-${hourSlot.hour}`"
+                  v-memo="[
+                     getEventsForTimeSlot(hourSlot.hour).length,
+                     isDraggingDisabled,
+                     isCurrentlyResizing,
+                     isDragCreating
+                  ]"
                   :class="getTimeSlotClass(hourSlot.hour)"
                   :style="{ height: `${getTimeSlotHeight(hourSlot.hour)}px` }"
                   :data-hour="hourSlot.hour"
