@@ -1,7 +1,7 @@
 import { computed, ref, watch, onUnmounted } from 'vue'
 import type { CalendarEvent } from '../types'
 import { formatDisplayTime, getEventEndTime, getEventStartTime } from '../utils/calendarDateUtils'
-import { isEventAllDay } from '../utils/eventUtils'
+import { isEventAllDay, debounce } from '../utils/eventUtils'
 
 interface ResizeState {
    isResizing: boolean
@@ -44,13 +44,12 @@ const resizeState = ref<ResizeState>({
 let onRealtimeUpdate: ((eventId: string, start: string, end: string) => void) | null = null
 let onFinalUpdate: ((eventId: string, start: string, end: string) => void) | null = null
 
-const debounce = <T extends (...args: any[]) => void>(func: T, wait: number) => {
-   let timeout: ReturnType<typeof setTimeout> | null = null
-   return (...args: Parameters<T>) => {
-      if (timeout) clearTimeout(timeout)
-      timeout = setTimeout(() => func(...args), wait)
+// 1s Debounce for Realtime Resizing (Stretching)
+const debouncedRealtimeUpdate = debounce((eventId: string, start: string, end: string) => {
+   if (onRealtimeUpdate) {
+      onRealtimeUpdate(eventId, start, end)
    }
-}
+}, 1000)
 
 export function useCalendarEventResize() {
    const startResize = (
@@ -147,8 +146,9 @@ export function useCalendarEventResize() {
 
       updateEventVisualSize(newStartDate, newEndDate)
 
-      if (onRealtimeUpdate && resizeState.value.eventId) {
-         onRealtimeUpdate(
+      // Use the 1s debounced updater for emitting to parent to prevent data-flooding
+      if (resizeState.value.eventId) {
+         debouncedRealtimeUpdate(
             resizeState.value.eventId,
             resizeState.value.currentStart,
             resizeState.value.currentEnd
@@ -156,6 +156,7 @@ export function useCalendarEventResize() {
       }
    }
 
+   // 16ms visual debounce to maintain smooth 60fps dragging without browser lag
    const debouncedUpdateResize = debounce(updateResize, 16)
 
    const updateEventVisualSize = (newStartDate: Date, newEndDate: Date) => {
@@ -233,6 +234,9 @@ export function useCalendarEventResize() {
 
       document.removeEventListener('mousemove', debouncedUpdateResize)
       document.removeEventListener('keydown', handleKeyDown)
+      
+      // Prevent pending real-time emits from overwriting the final drop state
+      debouncedRealtimeUpdate.cancel()
 
       const draggableContainers = document.querySelectorAll('[data-draggable-disabled="true"]')
       draggableContainers.forEach((container) => {
@@ -337,6 +341,7 @@ export function useCalendarEventResize() {
       if (resizeState.value.isResizing) {
          cancelResize()
       }
+      debouncedRealtimeUpdate.cancel()
    })
 
    return {
