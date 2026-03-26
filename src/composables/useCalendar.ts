@@ -1,4 +1,4 @@
-import { ref, computed, reactive, watch } from 'vue'
+import { shallowRef, ref, computed, reactive, watch } from 'vue'
 import type {
    CalendarEvent,
    CalendarView,
@@ -29,10 +29,10 @@ export function useCalendar(initialConfig?: Partial<CalendarViewConfig>) {
    const calendarCurrentDate = ref(new Date())
    const calendarSelectedDate = ref<Date | null>(null)
    const calendarView = ref<CalendarView>('month')
-   const calendarEvents = ref<CalendarEvent[]>([])
+   const calendarEvents = shallowRef<CalendarEvent[]>([])
 
    const { processEvents } = useEventProcessor()
-   const processedEvents = ref(processEvents(calendarEvents.value))
+   const processedEvents = shallowRef(processEvents(calendarEvents.value))
 
    watch(
       calendarEvents,
