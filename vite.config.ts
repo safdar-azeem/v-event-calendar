@@ -15,8 +15,6 @@ export default defineConfig({
    resolve: {
       alias: {
          '@': path.resolve(__dirname, 'src'),
-         // Ensure vuedraggable resolves correctly
-         vuedraggable: path.resolve(__dirname, 'node_modules/vuedraggable/src/vuedraggable.js'),
       },
    },
    build: {
@@ -28,11 +26,11 @@ export default defineConfig({
          fileName: (format, entryName) => `${entryName}.js`,
       },
       rollupOptions: {
-         external: ['vue', 'vuedraggable'],
+         external: ['vue', 'vue-draggable-plus'],
          output: {
             globals: {
                vue: 'Vue',
-               vuedraggable: 'Draggable',
+               'vue-draggable-plus': 'VueDraggablePlus',
             },
          },
       },
