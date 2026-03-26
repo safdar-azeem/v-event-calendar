@@ -26,7 +26,7 @@ const handleEventCreate = (date: Date, start: string, end?: string, duration?: n
       textColor: '#ffffff',
       description: 'A new event',
    }
-   sampleEvents.value.push(newEvent)
+   sampleEvents.value = [...sampleEvents.value, newEvent]
    console.log('Event created:', newEvent)
 }
 
@@ -42,12 +42,14 @@ const handleDateChange = (date: Date) => {
 const handleEventUpdate = (eventId: string, start: string, end?: string, duration?: number) => {
    const eventIndex = sampleEvents.value.findIndex((e) => e.id === eventId)
    if (eventIndex !== -1) {
-      sampleEvents.value[eventIndex] = {
-         ...sampleEvents.value[eventIndex],
+      const updatedEvents = [...sampleEvents.value]
+      updatedEvents[eventIndex] = {
+         ...updatedEvents[eventIndex],
          start,
          end,
          duration,
       }
+      sampleEvents.value = updatedEvents
       console.log('Event updated with duration:', eventId, start, end, duration)
    }
 }
@@ -82,7 +84,6 @@ const goToNext = () => {
    <div class="calendar-app">
       <div class="calendar-container">
          <div class="calendar-wrapper">
-            <!-- Calendar Component -->
             <div class="dark">
                <CalendarView
                   ref="calendarRef"
@@ -103,7 +104,6 @@ const goToNext = () => {
                   @event-update="handleEventUpdate"
                   class="calendar-content">
                   <template #header="{ currentTitle }">
-                     <!-- Calendar Header -->
                      <div class="calendar-header">
                         <div class="header-content">
                            <div class="view-buttons">
