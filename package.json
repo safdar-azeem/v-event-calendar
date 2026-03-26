@@ -50,6 +50,6 @@
     "bracketSameLine": true
   },
   "dependencies": {
-    "vuedraggable": "4.1.0"
+    "vue-draggable-plus": "^0.5.3"
   }
 }
