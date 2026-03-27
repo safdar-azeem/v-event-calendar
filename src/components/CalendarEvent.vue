@@ -197,7 +197,6 @@ onMounted(() => {
       :class="eventClasses"
       :style="eventStyle"
       @click.stop="handleClick"
-      @mousedown.stop
       :title="`${event?.title ?? ''}${displayTime ? ' • ' + displayTime : ''}`">
       <div
          v-if="canResize && event && !isEventAllDay(event)"
