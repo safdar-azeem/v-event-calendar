@@ -582,6 +582,21 @@
    border-top: 1px solid var(--calendar-border-color);
 }
 
+/* THE DRAG FIX: Critical CSS to ensure drop zones work */
+body.calendar-is-dragging {
+   cursor: grabbing !important;
+   user-select: none !important;
+}
+
+body.calendar-is-dragging .calendar-event-content,
+body.calendar-is-dragging .calendar-event,
+body.calendar-is-dragging .calendar-events-container > div,
+body.calendar-is-dragging .multi-day-event-container,
+body.calendar-is-dragging .all-day-event-item {
+   /* This forces the mouse to ignore events and hit the grid underneath! */
+   pointer-events: none !important;
+}
+
 /* Utility Classes */
 .opacity-50 {
    opacity: 0.5;
@@ -596,7 +611,7 @@
 }
 
 .flex-1 {
-   flex: 1;
+   flex: 1 1 0%;
 }
 
 .flex-shrink-0 {
@@ -629,6 +644,21 @@
 
 .absolute {
    position: absolute;
+}
+
+.inset-0 {
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+}
+
+.w-full {
+   width: 100%;
+}
+
+.h-full {
+   height: 100%;
 }
 
 .overflow-hidden {
@@ -699,7 +729,7 @@
    width: 100%;
    height: 100%;
    pointer-events: none;
-   background-color: var(--calendar-bg-color);
+   background-color: transparent;
    top: 0px;
    width: 100%;
    height: 100%;
