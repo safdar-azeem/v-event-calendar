@@ -48,8 +48,6 @@ const {
    handleTimeSlotClick,
    handleTimeSlotMouseDown,
    handleTimeSlotMouseUp,
-   handleEventResizeUpdate,
-   handleEventResizeEnd,
    setDraggingDisabled,
    isDraggingDisabled,
    isDragCreating,
@@ -63,7 +61,7 @@ const { topPosition } = useCurrentTime({
 })
 
 const { isCurrentlyResizing, getCurrentResizeEventId } = useCalendarEventResize()
-const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, props)
+const { startNativeDrag, draggedEventId, isDraggingEvent } = useCalendarEventNativeDrag(emit, props)
 
 const allDayLayout = computed(() => {
    return calculateAllDayEventLayout(props.calendarCells)
@@ -93,14 +91,12 @@ const handleDayHeaderClick = (cell: CalendarCell) => {
 }
 
 const handleEventResizeUpdateLocal = (eventId: string, start: string, end: string) => {
-   const duration = Math.max(15, (new Date(end).getTime() - new Date(start).getTime()) / 60000)
-   handleEventResizeUpdate(eventId, start, end)
-   emit('eventUpdate', eventId, start, end, duration)
+   // Intentionally left blank to prevent double-emits and preserve 60fps drag performance.
+   // Visual updates are handled efficiently in DOM by useCalendarEventResize.
 }
 
 const handleEventResizeEndLocal = (eventId: string, start: string, end: string) => {
    const duration = Math.max(15, (new Date(end).getTime() - new Date(start).getTime()) / 60000)
-   handleEventResizeEnd(eventId, start, end)
    emit('eventUpdate', eventId, start, end, duration)
 }
 </script>
@@ -227,7 +223,8 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                         allowEventCreation &&
                         getEventsForTimeSlot(cell, hourSlot.hour).length === 0 &&
                         !isCurrentlyResizing &&
-                        !isDragCreating
+                        !isDragCreating &&
+                        !isDraggingEvent
                      "
                      class="add-event-hover">
                      <div class="add-event-icon">
