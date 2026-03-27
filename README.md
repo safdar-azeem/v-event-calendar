@@ -4,16 +4,16 @@ A powerful, feature-rich Vue 3 calendar component with support for multiple view
 
 ## Features
 
--  **Multiple View Types**: Month, Week, and Day views with seamless switching
--  **Event Management**: Create, edit, delete, and drag-and-drop events
--  **Drag & Drop**: Move events between dates and time slots with visual feedback
--  **Event Resizing**: Resize events by dragging handles in week/day views
--  **Real-time Updates**: Live current time indicator and automatic refreshing
--  **Responsive Design**: Mobile-friendly with touch support
--  **Customizable**: Flexible styling, time formats, and event rendering
--  **Accessibility**: ARIA attributes and keyboard navigation support
--  **TypeScript Support**: Fully typed for enhanced developer experience
--  **Performance Optimized**: Efficient rendering and memory management
+- **Multiple View Types**: Month, Week, and Day views with seamless switching
+- **Event Management**: Create, edit, delete, and drag-and-drop events
+- **Drag & Drop**: Move events between dates and time slots with visual feedback
+- **Event Resizing**: Resize events by dragging handles in week/day views
+- **Real-time Updates**: Live current time indicator and automatic refreshing
+- **Responsive Design**: Mobile-friendly with touch support
+- **Customizable**: Flexible styling, time formats, and event rendering
+- **Accessibility**: ARIA attributes and keyboard navigation support
+- **TypeScript Support**: Fully typed for enhanced developer experience
+- **Performance Optimized**: Efficient rendering and memory management
 
 ## Demo
 
