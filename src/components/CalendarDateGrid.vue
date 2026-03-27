@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Icon from './Icon.vue'
-import { VueDraggable } from 'vue-draggable-plus'
 import { computed, watch } from 'vue'
 import ScrollableWrapper from './Scrollablar.vue'
 import { isEventAllDay } from '../utils/eventUtils'
@@ -10,6 +9,7 @@ import CurrentTimeIndicator from './CurrentTimeIndicator.vue'
 import { useCurrentTime } from '../composables/useCurrentTime'
 import { useCalendarGrid } from '../composables/useCalendarGrid'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
+import { useCalendarEventNativeDrag } from '../composables/useCalendarEventNativeDrag'
 
 interface CalendarDateGridProps {
    endHour?: number
@@ -42,8 +42,6 @@ const cell = computed(() => props.calendarCells[0])
 
 const {
    hours,
-
-   handleDragEnd,
    isDragCreating,
    getEventHeight,
    getTimeSlotClass,
@@ -66,6 +64,7 @@ const { topPosition } = useCurrentTime({
 })
 
 const { isCurrentlyResizing, getCurrentResizeEventId } = useCalendarEventResize()
+const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, props)
 
 const allDayEvents = computed(() => {
    if (!cell.value) return []
@@ -101,19 +100,28 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
    <div class="calendar-date-grid">
       <div v-if="allDayEvents.length > 0" class="grid-template-time all-day-section">
          <div class="all-day-label" v-once>All-day</div>
-         <div class="all-day-events">
-            <CalendarEventComponent
+         <div class="all-day-events relative">
+            <div class="absolute inset-0 flex w-full h-full" style="left:0; top:0; right:0; bottom:0;">
+               <div :data-col="cell.dateString" class="flex-1 all-day-drop-zone h-full"></div>
+            </div>
+            <div
                v-for="event in allDayEvents"
                :key="event.id"
-               view="date"
-               :event="event"
-               :compact="true"
-               :time-format="props.timeFormat"
-               @click="handleEventClick(event)">
-               <template #event="props">
-                  <slot name="event" v-bind="props" />
-               </template>
-            </CalendarEventComponent>
+               @mousedown.left.stop="startNativeDrag($event, event)"
+               :style="{ opacity: draggedEventId === event.id ? '0.4' : '1', cursor: 'grab', zIndex: 10 }"
+               class="relative"
+            >
+               <CalendarEventComponent
+                  view="date"
+                  :event="event"
+                  :compact="true"
+                  :time-format="props.timeFormat"
+                  @click="handleEventClick(event)">
+                  <template #event="props">
+                     <slot name="event" v-bind="props" />
+                  </template>
+               </CalendarEventComponent>
+            </div>
          </div>
       </div>
 
@@ -140,12 +148,6 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                <div
                   v-for="hourSlot in hours"
                   :key="`${cell.dateString}-${hourSlot.hour}`"
-                  v-memo="[
-                     getEventsForTimeSlot(hourSlot.hour).length,
-                     isDraggingDisabled,
-                     isCurrentlyResizing,
-                     isDragCreating
-                  ]"
                   :class="getTimeSlotClass(hourSlot.hour)"
                   :style="{ height: `${getTimeSlotHeight(hourSlot.hour)}px` }"
                   :data-hour="hourSlot.hour"
@@ -154,34 +156,20 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                   @click="handleTimeSlotClick(hourSlot.hour)"
                   @mousedown="handleTimeSlotMouseDown($event, hourSlot.hour)"
                   @mouseup="handleTimeSlotMouseUp($event)">
-                  <VueDraggable
-                     @end="handleDragEnd"
-                     :data-col="cell.date"
-                     :modelValue="getEventsForTimeSlot(hourSlot.hour)"
-                     group="calendar-events"
-                     ghostClass="opacity-50"
-                     class="calendar-events-container"
-                     :disabled="isDraggingDisabled || isCurrentlyResizing || isDragCreating">
+                  
+                  <div class="calendar-events-container">
                      <div
                         v-for="(event, index) in getEventsForTimeSlot(hourSlot.hour)"
                         :key="event.id"
-                        :data-event-id="event.id"
-                        :data-event-start="event.start"
-                        :data-event-end="event.end"
-                        :data-event-duration="
-                           Math.max(
-                              15,
-                              (new Date(event.end || event.start).getTime() -
-                                 new Date(event.start).getTime()) /
-                                 60000
-                           )
-                        "
+                        @mousedown.left.stop="startNativeDrag($event, event)"
                         :style="{
                            pointerEvents:
                               (isCurrentlyResizing && event.id !== getCurrentResizeEventId) ||
                               isDragCreating
                                  ? 'none'
                                  : 'auto',
+                           opacity: draggedEventId === event.id ? '0.4' : '1',
+                           cursor: 'grab'
                         }">
                         <CalendarEventComponent
                            :event="event"
@@ -201,7 +189,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                            </template>
                         </CalendarEventComponent>
                      </div>
-                  </VueDraggable>
+                  </div>
 
                   <div
                      v-if="
