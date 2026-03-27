@@ -97,16 +97,21 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
       <div v-if="allDayEvents.length > 0" class="grid-template-time all-day-section">
          <div class="all-day-label" v-once>All-day</div>
          <div class="all-day-events relative">
-            <div class="absolute inset-0 flex w-full h-full" style="left:0; top:0; right:0; bottom:0;">
+            <div
+               class="absolute inset-0 flex w-full h-full"
+               style="left: 0; top: 0; right: 0; bottom: 0">
                <div :data-col="cell.dateString" class="flex-1 all-day-drop-zone h-full"></div>
             </div>
             <div
                v-for="event in allDayEvents"
                :key="event.id"
                @mousedown.left.stop="startNativeDrag($event, event)"
-               :style="{ opacity: draggedEventId === event.id ? '0.4' : '1', cursor: 'grab', zIndex: 10 }"
-               class="relative"
-            >
+               :style="{
+                  opacity: draggedEventId === event.id ? '0.4' : '1',
+                  cursor: 'grab',
+                  zIndex: 10,
+               }"
+               class="relative">
                <CalendarEventComponent
                   view="date"
                   :event="event"
@@ -152,7 +157,6 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                   @click="handleTimeSlotClick(hourSlot.hour)"
                   @mousedown="handleTimeSlotMouseDown($event, hourSlot.hour)"
                   @mouseup="handleTimeSlotMouseUp($event)">
-                  
                   <div class="calendar-events-container">
                      <div
                         v-for="(event, index) in getEventsForTimeSlot(hourSlot.hour)"
@@ -165,7 +169,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                                  ? 'none'
                                  : 'auto',
                            opacity: draggedEventId === event.id ? '0.4' : '1',
-                           cursor: 'grab'
+                           cursor: 'grab',
                         }">
                         <CalendarEventComponent
                            :event="event"
