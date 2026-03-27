@@ -51,7 +51,5 @@
     "endOfLine": "auto",
     "bracketSameLine": true
   },
-  "dependencies": {
-    "vue-draggable-plus": "^0.5.3"
-  }
+  "dependencies": {}
 }
