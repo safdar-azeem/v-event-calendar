@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import type { CalendarCell } from '../types'
-import { isEventAllDay, debounce } from '../utils/eventUtils'
+import { isEventAllDay } from '../utils/eventUtils'
 import { useCalendarEventDragCreate } from './useCalendarEventDragCreate'
 import {
    createEventFromDateTime,
@@ -24,14 +24,6 @@ export function useCalendarGrid(
 ) {
    const isDraggingDisabled = ref(false)
    const dragCreateTimeout = ref<any>(null)
-
-   // Extremely fast debounce strictly to settle drag & drop lifecycle without lagging the emit
-   const debouncedDragEndUpdate = debounce(
-      (eventId: string, start: string, end: string, duration: number) => {
-         emit('eventUpdate', eventId, start, end, duration)
-      },
-      100
-   )
 
    const { startDragCreate, isDragCreating, setEventCreateCallback, cancelDragCreate } =
       useCalendarEventDragCreate()
@@ -205,51 +197,6 @@ export function useCalendarGrid(
       emit('timeSlotClick', targetCell.date, startTime)
    }
 
-   const handleDragEnd = (event: any) => {
-      if (!event.to || !event.from) return
-
-      const eventId = event.item.dataset.eventId
-      if (!eventId) return
-
-      const toTimeSlot = event.to.closest('.calendar-time-slot')
-      const newDateString = toTimeSlot?.getAttribute('data-col')
-      const newHourStr = toTimeSlot?.getAttribute('data-hour')
-
-      if (!newDateString || !newHourStr) return
-
-      const newHour = parseInt(newHourStr)
-      const newDate = new Date(newDateString)
-
-      const eventDuration = event.item.dataset.eventDuration || '60'
-      const durationMinutes = parseInt(eventDuration)
-
-      const [startHour, startMinute] = [
-         `${newHour.toString().padStart(2, '0')}:00`.split(':')[0],
-         '00',
-      ].map(Number)
-
-      const totalStartMinutes = startHour * 60 + startMinute
-      const totalEndMinutes = totalStartMinutes + durationMinutes
-      const endHour = Math.floor(totalEndMinutes / 60) % 24
-      const endMinute = totalEndMinutes % 60
-      const newEndTime = `${endHour.toString().padStart(2, '0')}:${endMinute
-         .toString()
-         .padStart(2, '0')}`
-
-      const eventData = createEventFromDateTime(
-         newDate,
-         `${newHour.toString().padStart(2, '0')}:00`,
-         newEndTime,
-         false
-      )
-      const duration = Math.max(
-         15,
-         (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
-            60000
-      )
-      debouncedDragEndUpdate(eventId, eventData.start, eventData.end || '', duration)
-   }
-
    const getDayHeaderClass = (cell?: CalendarCell) => {
       if (!cell) return []
       const classes = []
@@ -301,7 +248,6 @@ export function useCalendarGrid(
       handleTimeSlotClick,
       handleTimeSlotMouseDown,
       handleTimeSlotMouseUp,
-      handleDragEnd,
       getDayHeaderClass,
       getTimeSlotClass,
       handleEventResizeUpdate,
