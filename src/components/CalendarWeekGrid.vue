@@ -125,11 +125,17 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
          <div class="all-day-label" v-once>All-day</div>
 
          <div class="relative">
-            <div class="absolute inset-0 flex w-full h-full" style="left:0; top:0; right:0; bottom:0;">
-               <div v-for="cell in calendarCells" :key="cell.dateString" :data-col="cell.dateString" class="flex-1 all-day-drop-zone h-full"></div>
+            <div
+               class="absolute inset-0 flex w-full h-full"
+               style="left: 0; top: 0; right: 0; bottom: 0">
+               <div
+                  v-for="cell in calendarCells"
+                  :key="cell.dateString"
+                  :data-col="cell.dateString"
+                  class="flex-1 all-day-drop-zone h-full"></div>
             </div>
             <div class="grid-cols-7" :style="{ height: `${allDaySectionHeight}px` }"></div>
-            
+
             <div
                v-for="(layout, index) in allDayLayout"
                :key="layout.event.id"
@@ -141,7 +147,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                   top: `${layout.track * 21}px`,
                   opacity: draggedEventId === layout.event.id ? '0.4' : '1',
                   cursor: 'grab',
-                  zIndex: 10
+                  zIndex: 10,
                }">
                <CalendarEventComponent
                   :event="layout.event"
@@ -184,7 +190,6 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                   @click="handleTimeSlotClick(cell, hourSlot.hour)"
                   @mousedown="handleTimeSlotMouseDown($event, cell, hourSlot.hour)"
                   @mouseup="handleTimeSlotMouseUp($event)">
-                  
                   <div class="calendar-events-container week-view">
                      <div
                         v-for="(event, index) in getEventsForTimeSlot(cell, hourSlot.hour)"
@@ -197,7 +202,7 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                                  ? 'none'
                                  : 'auto',
                            opacity: draggedEventId === event.id ? '0.4' : '1',
-                           cursor: 'grab'
+                           cursor: 'grab',
                         }">
                         <CalendarEventComponent
                            :event="event"
