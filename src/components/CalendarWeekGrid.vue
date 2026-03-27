@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Icon from './Icon.vue'
-import { VueDraggable } from 'vue-draggable-plus'
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import ScrollableWrapper from './Scrollablar.vue'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarCell, CalendarEvent } from '../types'
@@ -10,12 +9,7 @@ import { useCurrentTime } from '../composables/useCurrentTime'
 import { useCalendarGrid } from '../composables/useCalendarGrid'
 import { calculateAllDayEventLayout } from '../utils/calendarLayoutUtils'
 import { useCalendarEventResize } from '../composables/useCalendarEventResize'
-import { isEventAllDay } from '../utils/eventUtils'
-import {
-   createEventFromDateTime,
-   findNextAvailableTime,
-   isEventMultiDay,
-} from '../utils/calendarDateUtils'
+import { useCalendarEventNativeDrag } from '../composables/useCalendarEventNativeDrag'
 
 interface CalendarWeekGridProps {
    calendarCells: CalendarCell[]
@@ -45,8 +39,6 @@ const props = withDefaults(defineProps<CalendarWeekGridProps>(), {
 
 const emit = defineEmits<CalendarWeekGridEmits>()
 
-const disabledAllDayDrag = ref(false)
-
 const {
    hours,
    getEventsForTimeSlot,
@@ -56,7 +48,6 @@ const {
    handleTimeSlotClick,
    handleTimeSlotMouseDown,
    handleTimeSlotMouseUp,
-   handleDragEnd,
    handleEventResizeUpdate,
    handleEventResizeEnd,
    setDraggingDisabled,
@@ -72,6 +63,7 @@ const { topPosition } = useCurrentTime({
 })
 
 const { isCurrentlyResizing, getCurrentResizeEventId } = useCalendarEventResize()
+const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, props)
 
 const allDayLayout = computed(() => {
    return calculateAllDayEventLayout(props.calendarCells)
@@ -111,64 +103,6 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
    handleEventResizeEnd(eventId, start, end)
    emit('eventUpdate', eventId, start, end, duration)
 }
-
-const handleAllDayDragEnd = (event: any) => {
-   if (!event.to || !event.from) return
-
-   const eventId = event.item.dataset.eventId
-   if (!eventId) return
-
-   const dropTarget = event.to.closest('.calendar-time-slot')
-   let newDateString = dropTarget?.getAttribute('data-col')
-   let targetHour: number | null = null
-
-   if (dropTarget) {
-      const hourData = dropTarget.getAttribute('data-hour')
-      if (hourData) {
-         targetHour = parseInt(hourData, 10)
-      }
-   }
-
-   if (!newDateString) {
-      const dayHeaderTarget = event.to.closest('[data-day-date]')
-      if (dayHeaderTarget) {
-         newDateString = dayHeaderTarget.getAttribute('data-day-date')
-      }
-   }
-
-   if (!newDateString && event.to) {
-      const cellIndex = Array.from(event.to.parentElement?.children || []).indexOf(event.to)
-      if (cellIndex >= 0 && cellIndex < props.calendarCells.length) {
-         const targetCell = props.calendarCells[cellIndex]
-         newDateString = targetCell.dateString
-      }
-   }
-
-   if (newDateString) {
-      const newDate = new Date(newDateString)
-      let startTime: string
-      let endTime: string
-
-      if (targetHour !== null) {
-         startTime = `${targetHour.toString().padStart(2, '0')}:00`
-         endTime = `${(targetHour + 1).toString().padStart(2, '0')}:00`
-      } else {
-         const targetDayEvents =
-            props.calendarCells.find((cell) => cell.dateString === newDateString)?.events || []
-         const timeSlot = findNextAvailableTime(newDate, targetDayEvents)
-         startTime = timeSlot.startTime
-         endTime = timeSlot.endTime
-      }
-
-      const eventData = createEventFromDateTime(newDate, startTime, endTime, false)
-      const duration = Math.max(
-         15,
-         (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
-            60000
-      )
-      emit('eventUpdate', eventId, eventData.start, eventData.end, duration)
-   }
-}
 </script>
 
 <template>
@@ -195,46 +129,37 @@ const handleAllDayDragEnd = (event: any) => {
          <div class="all-day-label" v-once>All-day</div>
 
          <div class="relative">
+            <div class="absolute inset-0 flex w-full h-full" style="left:0; top:0; right:0; bottom:0;">
+               <div v-for="cell in calendarCells" :key="cell.dateString" :data-col="cell.dateString" class="flex-1 all-day-drop-zone h-full"></div>
+            </div>
             <div class="grid-cols-7" :style="{ height: `${allDaySectionHeight}px` }"></div>
-            <VueDraggable
-               :modelValue="allDayLayout"
-               group="calendar-events"
-               class="all-day-events-overlay w-full h-full"
-               ghostClass="opacity-50"
-               :disabled="disabledAllDayDrag || isCurrentlyResizing || isDragCreating"
-               @start="disabledAllDayDrag = true"
-               @end="
-            (event: any) => {
-              handleAllDayDragEnd(event)
-              disabledAllDayDrag = false
-            }
-          ">
-               <div
-                  v-for="(layout, index) in allDayLayout"
-                  :key="layout.event.id"
-                  :data-event-id="layout.event.id"
-                  :data-event-all-day="isEventAllDay(layout.event)"
-                  :data-is-multi-day="isEventMultiDay(layout.event)"
-                  class="all-day-event-item"
-                  :style="{
-                     left: `${(layout.startDayIndex / 7) * 100}%`,
-                     width: `${(layout.span / 7) * 100}%`,
-                     top: `${layout.track * 21}px`,
-                  }">
-                  <CalendarEventComponent
-                     :event="layout.event"
-                     view="week"
-                     :compact="true"
-                     rounded="sm"
-                     class="all-day-event"
-                     :time-format="props.timeFormat"
-                     @click="handleEventClick(layout.event)">
-                     <template #event="props">
-                        <slot name="event" v-bind="{ ...props, isMultiDay: true }" />
-                     </template>
-                  </CalendarEventComponent>
-               </div>
-            </VueDraggable>
+            
+            <div
+               v-for="(layout, index) in allDayLayout"
+               :key="layout.event.id"
+               @mousedown.left.stop="startNativeDrag($event, layout.event)"
+               class="all-day-event-item absolute"
+               :style="{
+                  left: `${(layout.startDayIndex / 7) * 100}%`,
+                  width: `${(layout.span / 7) * 100}%`,
+                  top: `${layout.track * 21}px`,
+                  opacity: draggedEventId === layout.event.id ? '0.4' : '1',
+                  cursor: 'grab',
+                  zIndex: 10
+               }">
+               <CalendarEventComponent
+                  :event="layout.event"
+                  view="week"
+                  :compact="true"
+                  rounded="sm"
+                  class="all-day-event"
+                  :time-format="props.timeFormat"
+                  @click="handleEventClick(layout.event)">
+                  <template #event="props">
+                     <slot name="event" v-bind="{ ...props, isMultiDay: true }" />
+                  </template>
+               </CalendarEventComponent>
+            </div>
          </div>
       </div>
 
@@ -255,12 +180,6 @@ const handleAllDayDragEnd = (event: any) => {
                <div
                   v-for="hourSlot in hours"
                   :key="`${cell.dateString}-${hourSlot.hour}`"
-                  v-memo="[
-                     getEventsForTimeSlot(cell, hourSlot.hour).length,
-                     isDraggingDisabled,
-                     isCurrentlyResizing,
-                     isDragCreating
-                  ]"
                   :class="getTimeSlotClass(cell, hourSlot.hour)"
                   :style="{ height: `${getTimeSlotHeight(hourSlot.hour)}px` }"
                   :data-hour="hourSlot.hour"
@@ -269,35 +188,20 @@ const handleAllDayDragEnd = (event: any) => {
                   @click="handleTimeSlotClick(cell, hourSlot.hour)"
                   @mousedown="handleTimeSlotMouseDown($event, cell, hourSlot.hour)"
                   @mouseup="handleTimeSlotMouseUp($event)">
-                  <VueDraggable
-                     :modelValue="getEventsForTimeSlot(cell, hourSlot.hour)"
-                     group="calendar-events"
-                     class="calendar-events-container week-view"
-                     @end="handleDragEnd"
-                     ghostClass="opacity-50"
-                     :data-col="cell.dateString"
-                     :animation="200"
-                     :disabled="isDraggingDisabled || isCurrentlyResizing || isDragCreating">
+                  
+                  <div class="calendar-events-container week-view">
                      <div
                         v-for="(event, index) in getEventsForTimeSlot(cell, hourSlot.hour)"
                         :key="event.id"
-                        :data-event-id="event.id"
-                        :data-event-start="event.start"
-                        :data-event-end="event.end"
-                        :data-event-duration="
-                           Math.max(
-                              15,
-                              (new Date(event.end || event.start).getTime() -
-                                 new Date(event.start).getTime()) /
-                                 60000
-                           )
-                        "
+                        @mousedown.left.stop="startNativeDrag($event, event)"
                         :style="{
                            pointerEvents:
                               (isCurrentlyResizing && event.id !== getCurrentResizeEventId) ||
                               isDragCreating
                                  ? 'none'
                                  : 'auto',
+                           opacity: draggedEventId === event.id ? '0.4' : '1',
+                           cursor: 'grab'
                         }">
                         <CalendarEventComponent
                            :event="event"
@@ -316,7 +220,7 @@ const handleAllDayDragEnd = (event: any) => {
                            </template>
                         </CalendarEventComponent>
                      </div>
-                  </VueDraggable>
+                  </div>
 
                   <div
                      v-if="
