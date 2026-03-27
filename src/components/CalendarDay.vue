@@ -47,7 +47,7 @@ const {
    calendarDayNumberClasses,
 } = useCalendarDay(props, emit)
 
-const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, props)
+const { startNativeDrag, draggedEventId, isDraggingEvent } = useCalendarEventNativeDrag(emit, props)
 </script>
 
 <template>
@@ -62,7 +62,7 @@ const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, pro
             {{ calendarDateNumber }}
          </span>
          <button
-            v-if="allowEventCreation"
+            v-if="allowEventCreation && !isDraggingEvent"
             @click.stop="calendarHandleCreateEvent"
             class="add-event-btn pointer-events-auto"
             title="Add event">
