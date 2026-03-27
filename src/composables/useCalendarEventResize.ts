@@ -44,7 +44,6 @@ const resizeState = ref<ResizeState>({
 let onRealtimeUpdate: ((eventId: string, start: string, end: string) => void) | null = null
 let onFinalUpdate: ((eventId: string, start: string, end: string) => void) | null = null
 
-// 1s Debounce for Realtime Resizing (Stretching)
 const debouncedRealtimeUpdate = debounce((eventId: string, start: string, end: string) => {
    if (onRealtimeUpdate) {
       onRealtimeUpdate(eventId, start, end)
@@ -146,7 +145,6 @@ export function useCalendarEventResize() {
 
       updateEventVisualSize(newStartDate, newEndDate)
 
-      // Use the 1s debounced updater for emitting to parent to prevent data-flooding
       if (resizeState.value.eventId) {
          debouncedRealtimeUpdate(
             resizeState.value.eventId,
@@ -156,7 +154,6 @@ export function useCalendarEventResize() {
       }
    }
 
-   // 16ms visual debounce to maintain smooth 60fps dragging without browser lag
    const debouncedUpdateResize = debounce(updateResize, 16)
 
    const updateEventVisualSize = (newStartDate: Date, newEndDate: Date) => {
@@ -232,10 +229,17 @@ export function useCalendarEventResize() {
    const endResize = () => {
       if (!resizeState.value.isResizing) return
 
+      // SENIOR FIX: Block rogue click from passing through after releasing the resize handle
+      const preventClick = (evt: MouseEvent) => {
+         evt.stopPropagation()
+         evt.preventDefault()
+         document.removeEventListener('click', preventClick, true)
+      }
+      document.addEventListener('click', preventClick, true)
+      setTimeout(() => document.removeEventListener('click', preventClick, true), 100)
+
       document.removeEventListener('mousemove', debouncedUpdateResize)
       document.removeEventListener('keydown', handleKeyDown)
-      
-      // Prevent pending real-time emits from overwriting the final drop state
       debouncedRealtimeUpdate.cancel()
 
       const draggableContainers = document.querySelectorAll('[data-draggable-disabled="true"]')
@@ -279,24 +283,26 @@ export function useCalendarEventResize() {
          )
       }
 
-      resizeState.value = {
-         isResizing: false,
-         eventId: null,
-         originalStart: null,
-         originalEnd: null,
-         originalDuration: 0,
-         resizeHandle: null,
-         startMouseY: 0,
-         hourHeight: 60,
-         timeSlotElement: null,
-         eventElement: null,
-         originalEventHeight: 0,
-         originalEventTop: 0,
-         currentStart: null,
-         currentEnd: null,
-         date: null,
-         timeFormat: '24h',
-      }
+      setTimeout(() => {
+         resizeState.value = {
+            isResizing: false,
+            eventId: null,
+            originalStart: null,
+            originalEnd: null,
+            originalDuration: 0,
+            resizeHandle: null,
+            startMouseY: 0,
+            hourHeight: 60,
+            timeSlotElement: null,
+            eventElement: null,
+            originalEventHeight: 0,
+            originalEventTop: 0,
+            currentStart: null,
+            currentEnd: null,
+            date: null,
+            timeFormat: '24h',
+         }
+      }, 50)
    }
 
    const calculateDurationFromISO = (start: string, end: string): number => {
