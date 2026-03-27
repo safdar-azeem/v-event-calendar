@@ -84,6 +84,7 @@ const { startNativeDrag, draggedEventId, isDraggingEvent } = useCalendarEventNat
             :key="event.id"
             :data-event-id="event.id"
             @mousedown.left.stop="startNativeDrag($event, event)"
+            class="w-full min-w-0"
             :style="{
                opacity: draggedEventId === event.id ? '0.4' : '1',
                cursor: 'grab',
