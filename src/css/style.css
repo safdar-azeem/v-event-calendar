@@ -15,8 +15,6 @@
 *::before,
 *::after {
    box-sizing: border-box;
-   margin: 0;
-   padding: 0;
 }
 
 /* Calendar Layout */
@@ -547,10 +545,12 @@
 }
 
 @keyframes pulse {
+
    0%,
    100% {
       opacity: 0.8;
    }
+
    50% {
       opacity: 1;
    }
@@ -590,7 +590,7 @@ body.calendar-is-dragging {
 
 body.calendar-is-dragging .calendar-event-content,
 body.calendar-is-dragging .calendar-event,
-body.calendar-is-dragging .calendar-events-container > div,
+body.calendar-is-dragging .calendar-events-container>div,
 body.calendar-is-dragging .multi-day-event-container,
 body.calendar-is-dragging .all-day-event-item {
    /* This forces the mouse to ignore events and hit the grid underneath! */
