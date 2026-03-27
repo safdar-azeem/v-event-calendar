@@ -19,8 +19,6 @@ A powerful, feature-rich Vue 3 calendar component with support for multiple view
 
 [Live Demo](https://planner.builto.com)
 
-![Iconify Icon Picker Screenshot](https://ik.imagekit.io/fuhht88og/public/vue-event-calendar.png)
-
 ## Installation
 
 ```bash
@@ -103,7 +101,7 @@ import 'v-event-calendar/style.css'
 
 ## Usage Examples
 
-### 1. Custom Header Slot
+### 1\. Custom Header Slot
 
 ```vue
 <script setup>
@@ -155,7 +153,7 @@ const changeView = (view) => {
 </template>
 ```
 
-### 2. Custom Event Slot
+### 2\. Custom Event Slot
 
 ```vue
 <script setup>
@@ -215,22 +213,76 @@ const handleEventUpdate = (eventId, start, end) => {
 | `dateChange`  | `date: Date`                                   | Fired when the current date changes  |
 | `eventUpdate` | `eventId: string, start: string, end?: string` | Fired when an event is updated/moved |
 
-## CalendarEvent Interface
+## 🛠 Utility Functions
+
+The package exports several utility functions to help you manage dates and events outside the component.
+
+### ISO & Date Parsing
+
+- **`extractTimeFromISO(isoString: string): string`**
+  Extracts the time portion from an ISO string in `HH:mm` format.
+  _Example:_ `extractTimeFromISO("2025-01-20T10:30:00Z")` -\> `"10:30"`
+
+- **`extractDateFromISO(isoString: string): Date`**
+  Converts an ISO string into a JavaScript `Date` object representing the date at midnight local time.
+
+- **`parseISOToDateTime(isoString: string): { date: string, time: string }`**
+  Helper to get both date (`YYYY-MM-DD`) and time (`HH:mm`) from an ISO string.
+
+- **`formatToISO(date: Date): string`**
+  A wrapper for `date.toISOString()`.
+
+### Formatting
+
+- **`formatDate(date: Date): string`**
+  Formats a Date object into a `YYYY-MM-DD` string.
+
+- **`formatTime(date: Date): string`**
+  Formats a Date object into a `HH:mm` string.
+
+- **`formatDisplayTime(timeString: string, format24h: boolean = true): string`**
+  Converts a `HH:mm` string into a user-friendly format.
+  _Example:_ `formatDisplayTime("14:30", false)` -\> `"02:30 PM"`
+
+### Event Management
+
+- **`findNextAvailableTime(targetDate: Date, eventsOnDay: CalendarEvent[])`**
+  Analyzes existing events on a specific day and returns the next suggested 1-hour slot (e.g., `{ startTime: "11:00", endTime: "12:00" }`).
+
+- **`getDuration(startTime: string, endTime: string): number`**
+  Calculates the difference between two ISO strings in minutes.
+
+- **`hasTimeConflict(event1: CalendarEvent, event2: CalendarEvent): boolean`**
+  Checks if two timed events overlap on the same day.
+
+- **`addMinutes(date: Date, minutes: number): Date`**
+  Returns a new Date object with the added minutes.
+
+## 🔷 Core Types
+
+### CalendarEvent
 
 ```typescript
 interface CalendarEvent {
    id: string
    title: string
-   start: string // ISO 8601 format
+   start: string // ISO 8601 format (e.g., "2025-08-09T10:00:00Z")
    end?: string // ISO 8601 format
+   duration?: number // Optional duration in minutes
    backgroundColor: string
    textColor: string
    description?: string
-   metadata?: Record<string, any>
+   metadata?: Record<string, any> // Custom data
 }
 ```
 
-## Configuration Options
+### CalendarView
+
+```typescript
+type CalendarView = 'month' | 'week' | 'date'
+```
+
+### CalendarViewConfig
 
 ```typescript
 interface CalendarViewConfig {
@@ -240,7 +292,7 @@ interface CalendarViewConfig {
    weekStartsOnMonday: boolean
    showAllDayEvents: boolean
    eventHeight: number
-   hourHeight: number
+   hourHeight: number // Height of one hour in pixels for week/day views
 }
 ```
 
