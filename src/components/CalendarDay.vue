@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import Icon from './Icon.vue'
-import { VueDraggable } from 'vue-draggable-plus'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarCell, CalendarEvent } from '../types'
 import { useCalendarDay } from '../composables/useCalendarDay'
+import { useCalendarEventNativeDrag } from '../composables/useCalendarEventNativeDrag'
 
 interface CalendarDayProps {
    cell: CalendarCell
@@ -13,11 +13,10 @@ interface CalendarDayProps {
    multiDayTrackCount?: number
    timeFormat?: '12h' | '24h'
 }
+
 interface CalendarDayEmits {
    (e: 'dayClick', date: Date): void
    (e: 'eventClick', event: CalendarEvent): void
-   (e: 'dragStart'): void
-   (e: 'dragEnd'): void
    (e: 'createEvent', date: Date, startTime: string, endTime: string, duration: number): void
    (
       e: 'eventUpdate',
@@ -36,6 +35,7 @@ const props = withDefaults(defineProps<CalendarDayProps>(), {
 })
 
 const emit = defineEmits<CalendarDayEmits>()
+
 const {
    calendarDayClasses,
    calendarDateNumber,
@@ -44,25 +44,27 @@ const {
    calendarHandleDayClick,
    calendarHandleCreateEvent,
    calendarHandleDoubleClick,
-   calendarHandleDragEnd,
    calendarDayNumberClasses,
 } = useCalendarDay(props, emit)
+
+const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, props)
 </script>
 
 <template>
    <div
       class="calendar-day"
       :class="calendarDayClasses"
+      :data-col="props.cell.dateString"
       @click="calendarHandleDayClick"
       @dblclick="calendarHandleDoubleClick">
-      <div class="calendar-day-header">
-         <span class="calendar-day-number" :class="calendarDayNumberClasses">
+      <div class="calendar-day-header pointer-events-none">
+         <span class="calendar-day-number pointer-events-auto" :class="calendarDayNumberClasses">
             {{ calendarDateNumber }}
          </span>
          <button
             v-if="allowEventCreation"
             @click.stop="calendarHandleCreateEvent"
-            class="add-event-btn"
+            class="add-event-btn pointer-events-auto"
             title="Add event">
             <Icon width="13" icon="plus" height="13" />
          </button>
@@ -76,32 +78,17 @@ const {
             minHeight: multiDayTrackCount == 1 ? '25px' : `${25 - (index + 1)}px`,
          }"></div>
 
-      <VueDraggable
-         :modelValue="calendarDisplayedEvents"
-         group="calendar-events"
-         class="events-list"
-         @start="emit('dragStart')"
-         @end="
-        (event: any) => {
-          calendarHandleDragEnd(event)
-          emit('dragEnd')
-        }
-      "
-         :data-col="props.cell.date"
-         ghostClass="opacity-50">
+      <div class="events-list relative w-full h-full flex flex-col gap-[2px]">
          <div
             v-for="(event, index) in calendarDisplayedEvents"
             :key="event.id"
             :data-event-id="event.id"
-            :data-event-endTime="event.end"
-            :data-event-startTime="event.start"
-            :data-event-duration="
-               Math.max(
-                  15,
-                  (new Date(event.end || event.start).getTime() - new Date(event.start).getTime()) /
-                     60000
-               )
-            ">
+            @mousedown.left.stop="startNativeDrag($event, event)"
+            :style="{ 
+               opacity: draggedEventId === event.id ? '0.4' : '1', 
+               cursor: 'grab' 
+            }"
+         >
             <CalendarEventComponent
                :event="event"
                :view="view"
@@ -114,6 +101,6 @@ const {
                </template>
             </CalendarEventComponent>
          </div>
-      </VueDraggable>
+      </div>
    </div>
 </template>
