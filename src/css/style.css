@@ -279,9 +279,9 @@
 /* Calendar Events */
 .calendar-event {
    position: relative;
-   padding: 0.1em 0.5em;
+   padding: 2px 6px;
    color: white;
-   font-size: 0.1em;
+   font-size: 0.85rem;
    cursor: pointer;
    transition: all 0.2s;
    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -293,14 +293,14 @@
    min-height: 20px;
    display: flex;
    align-items: center;
-   overflow: hidden; /* Prevent text blowout */
-   min-width: 0; /* Let flex child shrink below content size */
-   width: 100%; /* Ensure it spans the grid/flex cell correctly */
+   overflow: hidden;
+   min-width: 0;
+   width: 100%;
 }
 
 .calendar-event.compact {
-   font-size: 0.5em;
-   padding: 2px 6px;
+   font-size: 0.75rem;
+   padding: 2px 4px;
    min-height: 18px;
 }
 
@@ -321,7 +321,7 @@
 .event-title {
    overflow: hidden;
    text-overflow: ellipsis;
-   font-size: 0.5em;
+   font-size: inherit;
    font-weight: 500;
    flex: 1;
    margin-right: 4px;
