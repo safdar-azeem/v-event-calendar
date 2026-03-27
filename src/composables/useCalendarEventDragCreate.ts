@@ -173,6 +173,16 @@ export function useCalendarEventDragCreate() {
 
    const endDragCreate = () => {
       if (!dragCreateState.value?.isDragging) return
+
+      // SENIOR FIX: Intercept the native click immediately following the creation mouseup
+      const preventClick = (evt: MouseEvent) => {
+         evt.stopPropagation()
+         evt.preventDefault()
+         document.removeEventListener('click', preventClick, true)
+      }
+      document.addEventListener('click', preventClick, true)
+      setTimeout(() => document.removeEventListener('click', preventClick, true), 100)
+
       dragCreateState.value?.placeholderEventElement?.remove()
 
       const wasDragged =
@@ -202,19 +212,21 @@ export function useCalendarEventDragCreate() {
       document.removeEventListener('keydown', handleKeyDown)
       document.body.style.userSelect = ''
 
-      dragCreateState.value = {
-         isDragging: false,
-         startMouseY: 0,
-         currentMouseY: 0,
-         timeSlotElement: null,
-         placeholderEventElement: null,
-         startHour: 0,
-         date: null,
-         hourHeight: 60,
-         initialStartTime: null,
-         currentStartTime: null,
-         currentEndTime: null,
-      }
+      setTimeout(() => {
+         dragCreateState.value = {
+            isDragging: false,
+            startMouseY: 0,
+            currentMouseY: 0,
+            timeSlotElement: null,
+            placeholderEventElement: null,
+            startHour: 0,
+            date: null,
+            hourHeight: 60,
+            initialStartTime: null,
+            currentStartTime: null,
+            currentEndTime: null,
+         }
+      }, 50)
    }
 
    const setEventCreateCallback = (
