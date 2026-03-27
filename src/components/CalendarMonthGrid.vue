@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { VueDraggable } from 'vue-draggable-plus'
 import CalendarDay from './CalendarDay.vue'
 import ScrollableWrapper from './Scrollablar.vue'
-import { isEventAllDay, debounce } from '../utils/eventUtils'
 import CalendarEventComponent from './CalendarEvent.vue'
 import type { CalendarEvent, CalendarMonth } from '../types'
-
-import {
-   isEventMultiDay,
-   findNextAvailableTime,
-   createEventFromDateTime,
-} from '../utils/calendarDateUtils'
+import { useCalendarEventNativeDrag } from '../composables/useCalendarEventNativeDrag'
 
 interface CalendarMonthGridProps {
    dayNames: string[]
@@ -29,8 +21,6 @@ interface CalendarMonthGridEmits {
    (e: 'eventUpdate', eventId: string, start: string, end?: string, duration?: number): void
 }
 
-const disabledAllDayDrag = ref(false)
-
 const props = withDefaults(defineProps<CalendarMonthGridProps>(), {
    showWeekNumbers: false,
    allowEventCreation: true,
@@ -39,10 +29,6 @@ const props = withDefaults(defineProps<CalendarMonthGridProps>(), {
 })
 
 const emit = defineEmits<CalendarMonthGridEmits>()
-
-const debouncedEventUpdate = debounce((eventId: string, start: string, end: string, duration: number) => {
-   emit('eventUpdate', eventId, start, end, duration)
-}, 100)
 
 const handleEventClick = (event: CalendarEvent) => {
    emit('eventClick', event)
@@ -54,33 +40,7 @@ const handleEventUpdate = (eventId: string, start: string, end?: string, duratio
    emit('eventUpdate', eventId, start, end, calculatedDuration)
 }
 
-const calendarHandleDragEnd = (event: any) => {
-   if (!event.to || !event.from) return
-
-   const eventId = event.item.dataset.eventId
-   if (!eventId) return
-
-   const dropTarget = event.to.closest('.calendar-day')
-   const newDateString = dropTarget?.querySelector('[data-col]')?.getAttribute('data-col')
-
-   if (newDateString) {
-      const newDate = new Date(newDateString)
-
-      const targetDayEvents =
-         props.calendarMonth.weeks
-            .flatMap((week) => week.days)
-            .find((day) => day.dateString === newDateString)?.events || []
-
-      const { startTime, endTime } = findNextAvailableTime(newDate, targetDayEvents)
-      const eventData = createEventFromDateTime(newDate, startTime, endTime, false)
-      const duration = Math.max(
-         15,
-         (new Date(eventData.end || eventData.start).getTime() - new Date(eventData.start).getTime()) /
-            60000
-      )
-      debouncedEventUpdate(eventId, eventData.start, eventData.end || '', duration)
-   }
-}
+const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, props)
 </script>
 
 <template>
@@ -96,6 +56,7 @@ const calendarHandleDragEnd = (event: any) => {
             v-for="week in calendarMonth.weeks"
             :key="`week-${week.weekNumber}`"
             class="month-week relative">
+            
             <CalendarDay
                v-for="(cell, index) in week.days"
                :key="cell.dateString"
@@ -103,8 +64,6 @@ const calendarHandleDragEnd = (event: any) => {
                view="month"
                :time-format="props.timeFormat"
                :max-events-display="maxEventsPerDay"
-               @dragEnd="disabledAllDayDrag = false"
-               @dragStart="disabledAllDayDrag = true"
                @day-click="$emit('dayClick', $event)"
                :allow-event-creation="allowEventCreation"
                @event-click="$emit('eventClick', $event)"
@@ -119,24 +78,18 @@ const calendarHandleDragEnd = (event: any) => {
                </template>
             </CalendarDay>
 
-            <VueDraggable
-               :modelValue="week.allDayLayout || []"
-               group="calendar-events"
-               class="all-day-events-overlay w-full h-full"
-               ghostClass="opacity-50"
-               :disabled="disabledAllDayDrag"
-               @end="calendarHandleDragEnd">
+            <div class="all-day-events-overlay absolute w-full h-full" style="left:0; top:0; z-index: 10;">
                <div
                   v-for="(layout, index) in week.allDayLayout || []"
                   :key="layout.event.id"
-                  :data-event-id="layout.event.id"
-                  :data-event-all-day="isEventAllDay(layout.event)"
-                  :data-is-multi-day="isEventMultiDay(layout.event)"
+                  @mousedown.left.stop="startNativeDrag($event, layout.event)"
                   class="multi-day-event-container"
                   :style="{
                      top: `calc(${27 + layout.track * 20}px)`,
                      left: `calc(${(layout.startDayIndex / 7) * 100}% + 2px)`,
                      width: `calc(${(layout.span / 7) * 99}%)`,
+                     opacity: draggedEventId === layout.event.id ? '0.4' : '1',
+                     cursor: 'grab'
                   }">
                   <CalendarEventComponent
                      :event="layout.event"
@@ -151,7 +104,7 @@ const calendarHandleDragEnd = (event: any) => {
                      </template>
                   </CalendarEventComponent>
                </div>
-            </VueDraggable>
+            </div>
          </div>
       </ScrollableWrapper>
    </div>
