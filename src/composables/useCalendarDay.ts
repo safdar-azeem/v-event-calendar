@@ -1,6 +1,5 @@
 import { computed } from 'vue'
 import type { CalendarCell } from '../types'
-import { debounce } from '../utils/eventUtils'
 import {
    createEventFromDateTime,
    getEventEndTime,
@@ -18,10 +17,6 @@ export function useCalendarDay(
    },
    emit: any
 ) {
-   const debouncedDragEndUpdate = debounce((eventId: string, start: string, end: string, duration: number) => {
-      emit('eventUpdate', eventId, start, end, duration)
-   }, 100)
-
    const calendarDayClasses = computed(() => {
       const classes = ['relative', 'transition-colors', 'cursor-pointer', 'flex', 'flex-col']
 
@@ -127,63 +122,6 @@ export function useCalendarDay(
       calendarHandleCreateEvent()
    }
 
-   const calendarHandleDragEnd = (event: any) => {
-      if (!event.to || !event.from) return
-
-      const toIndex = event.newIndex
-      const newDateString = event.to.getAttribute('data-col')
-      const eventId = event.item.dataset.eventId
-
-      const originalStart = new Date(event.item.dataset.eventStarttime)
-      const originalEnd = new Date(event.item.dataset.eventEndtime)
-      const durationMs = originalEnd.getTime() - originalStart.getTime()
-
-      const eventsOnDay = Array.from(event.to.children)
-         .filter((child: any) => child.dataset?.eventStarttime && child.dataset?.eventEndtime)
-         .map((child: any) => ({
-            start: new Date(child.dataset.eventStarttime),
-            end: new Date(child.dataset.eventEndtime),
-         }))
-         .sort((a, b) => a.start.getTime() - b.start.getTime())
-
-      let newStart: Date
-      let newEnd: Date
-
-      if (eventsOnDay.length === 0) {
-         newStart = new Date(newDateString)
-         newStart.setHours(originalStart.getHours(), originalStart.getMinutes(), 0, 0)
-         newEnd = new Date(newStart.getTime() + durationMs)
-      } else {
-         const earliestEvent = eventsOnDay[0]
-         const dropAfterEvent = event?.to?.children[toIndex - 1]
-            ? {
-                 start: new Date(event.to.children[toIndex - 1].dataset.eventStarttime),
-                 end: new Date(event.to.children[toIndex - 1].dataset.eventEndtime),
-              }
-            : null
-
-         const isBeforeFirstEvent = toIndex === 0
-
-         if (isBeforeFirstEvent) {
-            if (originalStart < earliestEvent.start) {
-               newStart = new Date(newDateString)
-               newStart.setHours(originalStart.getHours(), originalStart.getMinutes(), 0, 0)
-            } else {
-               newStart = new Date(newDateString)
-               newStart.setHours(9, 0, 0, 0)
-            }
-            newEnd = new Date(newStart.getTime() + durationMs)
-         } else if (dropAfterEvent) {
-            newStart = new Date(newDateString)
-            newStart.setHours(dropAfterEvent.end.getHours(), dropAfterEvent.end.getMinutes(), 0, 0)
-            newEnd = new Date(newStart.getTime() + durationMs)
-         }
-      }
-
-      const duration = Math.max(15, (newEnd.getTime() - newStart.getTime()) / 60000)
-      debouncedDragEndUpdate(eventId, newStart.toISOString(), newEnd.toISOString(), duration)
-   }
-
    const calendarDayNumberClasses = computed(() => {
       const classes = [
          'inline-flex',
@@ -208,7 +146,6 @@ export function useCalendarDay(
       calendarHandleDayClick,
       calendarHandleCreateEvent,
       calendarHandleDoubleClick,
-      calendarHandleDragEnd,
       calendarDayNumberClasses,
    }
 }
