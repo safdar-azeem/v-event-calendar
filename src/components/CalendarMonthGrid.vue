@@ -56,7 +56,6 @@ const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, pro
             v-for="week in calendarMonth.weeks"
             :key="`week-${week.weekNumber}`"
             class="month-week relative">
-            
             <CalendarDay
                v-for="(cell, index) in week.days"
                :key="cell.dateString"
@@ -78,7 +77,9 @@ const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, pro
                </template>
             </CalendarDay>
 
-            <div class="all-day-events-overlay absolute w-full h-full" style="left:0; top:0; z-index: 10;">
+            <div
+               class="all-day-events-overlay absolute w-full h-full"
+               style="left: 0; top: 0; z-index: 10">
                <div
                   v-for="(layout, index) in week.allDayLayout || []"
                   :key="layout.event.id"
@@ -89,7 +90,7 @@ const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, pro
                      left: `calc(${(layout.startDayIndex / 7) * 100}% + 2px)`,
                      width: `calc(${(layout.span / 7) * 99}%)`,
                      opacity: draggedEventId === layout.event.id ? '0.4' : '1',
-                     cursor: 'grab'
+                     cursor: 'grab',
                   }">
                   <CalendarEventComponent
                      :event="layout.event"
