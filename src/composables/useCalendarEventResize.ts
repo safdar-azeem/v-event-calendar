@@ -146,11 +146,18 @@ export function useCalendarEventResize() {
       updateEventVisualSize(newStartDate, newEndDate)
 
       if (resizeState.value.eventId) {
-         debouncedRealtimeUpdate(
-            resizeState.value.eventId,
-            resizeState.value.currentStart,
-            resizeState.value.currentEnd
-         )
+         const originalStart = resizeState.value.originalStart ? new Date(resizeState.value.originalStart).getTime() : 0
+         const originalEnd = resizeState.value.originalEnd ? new Date(resizeState.value.originalEnd).getTime() : 0
+         const currentStart = new Date(resizeState.value.currentStart).getTime()
+         const currentEnd = new Date(resizeState.value.currentEnd).getTime()
+
+         if (originalStart !== currentStart || originalEnd !== currentEnd) {
+            debouncedRealtimeUpdate(
+               resizeState.value.eventId,
+               resizeState.value.currentStart,
+               resizeState.value.currentEnd
+            )
+         }
       }
    }
 
@@ -228,6 +235,7 @@ export function useCalendarEventResize() {
 
    const endResize = () => {
       if (!resizeState.value.isResizing) return
+      resizeState.value.isResizing = false // Immediately break unmount loop to prevent double emitting
 
       // SENIOR FIX: Block rogue click from passing through after releasing the resize handle
       const preventClick = (evt: MouseEvent) => {
@@ -279,11 +287,18 @@ export function useCalendarEventResize() {
          resizeState.value.currentStart &&
          resizeState.value.currentEnd
       ) {
-         onFinalUpdate(
-            resizeState.value.eventId,
-            resizeState.value.currentStart,
-            resizeState.value.currentEnd
-         )
+         const originalStart = resizeState.value.originalStart ? new Date(resizeState.value.originalStart).getTime() : 0
+         const originalEnd = resizeState.value.originalEnd ? new Date(resizeState.value.originalEnd).getTime() : 0
+         const currentStart = new Date(resizeState.value.currentStart).getTime()
+         const currentEnd = new Date(resizeState.value.currentEnd).getTime()
+
+         if (originalStart !== currentStart || originalEnd !== currentEnd) {
+            onFinalUpdate(
+               resizeState.value.eventId,
+               resizeState.value.currentStart,
+               resizeState.value.currentEnd
+            )
+         }
       }
 
       setTimeout(() => {
