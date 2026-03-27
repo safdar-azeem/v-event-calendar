@@ -15,12 +15,16 @@ export function useCalendarEventNativeDrag(emit: any, props?: any) {
       const wrapperEl = e.currentTarget as HTMLElement
       const targetEl = (wrapperEl.querySelector('.calendar-event') || wrapperEl) as HTMLElement
       const rect = targetEl.getBoundingClientRect()
+      
+      // Capture the exact computed styles before pulling it out of its context
+      const computedStyle = window.getComputedStyle(targetEl)
 
       const startX = e.clientX
       const startY = e.clientY
 
       let hasStartedDragging = false
       let ghost: HTMLElement | null = null
+      let ghostWrapper: HTMLElement | null = null
       let offsetX = 0
       let offsetY = 0
 
@@ -40,27 +44,53 @@ export function useCalendarEventNativeDrag(emit: any, props?: any) {
             if (dx > 3 || dy > 3) {
                hasStartedDragging = true
 
-               offsetX = moveEvt.clientX - rect.left
-               offsetY = moveEvt.clientY - rect.top
+               // Use exact start coordinates for the offset to keep it glued precisely to the cursor
+               offsetX = startX - rect.left
+               offsetY = startY - rect.top
 
                // Create a visual ghost element
                ghost = targetEl.cloneNode(true) as HTMLElement
-               ghost.style.position = 'fixed'
+               
+               // Explicitly copy computed text styles to prevent scale/font-size blowouts 
+               // from relative units (em/rem/%) recalculating in a new DOM location.
+               ghost.style.fontSize = computedStyle.fontSize
+               ghost.style.lineHeight = computedStyle.lineHeight
+               ghost.style.fontWeight = computedStyle.fontWeight
+               ghost.style.fontFamily = computedStyle.fontFamily
+               ghost.style.letterSpacing = computedStyle.letterSpacing
+               ghost.style.color = computedStyle.color
+               
+               ghost.style.position = 'absolute'
                ghost.style.margin = '0'
                ghost.style.left = `${rect.left}px`
                ghost.style.top = `${rect.top}px`
                ghost.style.width = `${rect.width}px`
                ghost.style.height = `${rect.height}px`
-               ghost.style.zIndex = '999999'
                ghost.style.opacity = '0.85'
-               ghost.style.pointerEvents = 'none' // Crucial: lets mouse hit the grid below
-               ghost.style.transform = 'scale(1)'
+               ghost.style.pointerEvents = 'none' 
+               ghost.style.boxSizing = 'border-box'
                ghost.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)'
-               // Add width to transition so it smoothly snaps to column sizes
                ghost.style.transition = 'top 0.05s ease-out, left 0.05s ease-out, width 0.05s ease-out'
                ghost.classList.add('is-ghost')
 
-               document.body.appendChild(ghost)
+               // Create a fixed wrapper to hold the ghost, preventing offset bugs
+               // while inheriting all CSS variables and scoped styles from the calendar
+               ghostWrapper = document.createElement('div')
+               const calRoot = targetEl.closest('.v-event-calendar')
+               const calView = targetEl.closest('.calendar-view')
+               
+               ghostWrapper.className = `${calRoot?.className || 'v-event-calendar'} ${calView?.className || 'calendar-view'}`
+               ghostWrapper.style.position = 'fixed'
+               ghostWrapper.style.top = '0'
+               ghostWrapper.style.left = '0'
+               ghostWrapper.style.width = '100%'
+               ghostWrapper.style.height = '100%'
+               ghostWrapper.style.pointerEvents = 'none'
+               ghostWrapper.style.zIndex = '999999'
+               ghostWrapper.style.background = 'transparent'
+
+               ghostWrapper.appendChild(ghost)
+               document.body.appendChild(ghostWrapper)
                document.body.classList.add('calendar-is-dragging')
 
                isDraggingEvent.value = true
@@ -113,8 +143,10 @@ export function useCalendarEventNativeDrag(emit: any, props?: any) {
                   cellRect.top + 25,
                   Math.min(rawTop, cellRect.bottom - rect.height)
                )
-               lastValidLeft = cellRect.left + 1
-               lastValidWidth = cellRect.width - 2
+               
+               // FIX: Account for the 5px padding on .calendar-day to prevent width blowout
+               lastValidLeft = cellRect.left + 5
+               lastValidWidth = cellRect.width - 10
             }
 
             // If the user drags completely outside the calendar, the code above skips,
@@ -148,7 +180,7 @@ export function useCalendarEventNativeDrag(emit: any, props?: any) {
             return // Was just a standard click, abort drag logic.
          }
 
-         if (ghost) ghost.remove()
+         if (ghostWrapper) ghostWrapper.remove()
 
          // Delay state clearing slightly to fully protect the render loop
          setTimeout(() => {
