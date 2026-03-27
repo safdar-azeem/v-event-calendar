@@ -231,9 +231,12 @@ export function useCalendarEventResize() {
 
       // SENIOR FIX: Block rogue click from passing through after releasing the resize handle
       const preventClick = (evt: MouseEvent) => {
-         evt.stopPropagation()
-         evt.preventDefault()
-         document.removeEventListener('click', preventClick, true)
+         // Only prevent trusted (native) clicks. Let programmatic (synthetic) clicks pass through.
+         if (evt.isTrusted) {
+            evt.stopPropagation()
+            evt.preventDefault()
+            document.removeEventListener('click', preventClick, true)
+         }
       }
       document.addEventListener('click', preventClick, true)
       setTimeout(() => document.removeEventListener('click', preventClick, true), 100)
