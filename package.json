@@ -1,6 +1,6 @@
 {
   "name": "v-event-calendar",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "description": "Lightweight, Vue 3 Event Calendar With Event Scheduling, Multiple Views, Drag-&-Drop, Resizing and Customizable Styling",
   "type": "module",
   "author": "safdar-azeem",
@@ -26,7 +26,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build && node script/index.js",
-    "preview": "vite preview"
+    "build:vercel": "vue-tsc -b && vite build --config vite.config.vercel.ts",
+    "preview": "vite preview",
+    "prepare:dist": "npm run build && cp package.json README.md dist/",
+    "release:patch": "npm version patch && npm run prepare:dist && cd dist && npm publish",
+    "release:minor": "npm version minor && npm run prepare:dist && cd dist && npm publish",
+    "release:major": "npm version major && npm run prepare:dist && cd dist && npm publish",
+    "publish:dist": "npm run prepare:dist && cd dist && npm publish"
   },
   "peerDependencies": {
     "vue": "^3.4.31"
