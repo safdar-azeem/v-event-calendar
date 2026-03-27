@@ -26,11 +26,10 @@ export default defineConfig({
          fileName: (format, entryName) => `${entryName}.js`,
       },
       rollupOptions: {
-         external: ['vue', 'vue-draggable-plus'],
+         external: ['vue'],
          output: {
             globals: {
                vue: 'Vue',
-               'vue-draggable-plus': 'VueDraggablePlus',
             },
          },
       },
