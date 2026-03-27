@@ -50,10 +50,8 @@ const {
    isDraggingDisabled,
    handleTimeSlotClick,
    setDraggingDisabled,
-   handleEventResizeEnd,
    handleTimeSlotMouseUp,
    handleTimeSlotMouseDown,
-   handleEventResizeUpdate,
 } = useCalendarGrid(props, emit, cell)
 
 const isCurrentDay = computed(() => cell.value?.isToday ?? false)
@@ -64,7 +62,7 @@ const { topPosition } = useCurrentTime({
 })
 
 const { isCurrentlyResizing, getCurrentResizeEventId } = useCalendarEventResize()
-const { startNativeDrag, draggedEventId } = useCalendarEventNativeDrag(emit, props)
+const { startNativeDrag, draggedEventId, isDraggingEvent } = useCalendarEventNativeDrag(emit, props)
 
 const allDayEvents = computed(() => {
    if (!cell.value) return []
@@ -84,14 +82,12 @@ const handleEventClick = (event: CalendarEvent) => {
 }
 
 const handleEventResizeUpdateLocal = (eventId: string, start: string, end: string) => {
-   const duration = Math.max(15, (new Date(end).getTime() - new Date(start).getTime()) / 60000)
-   handleEventResizeUpdate(eventId, start, end)
-   emit('eventUpdate', eventId, start, end, duration)
+   // Intentionally left blank to prevent double-emits and preserve 60fps drag performance.
+   // Visual updates are handled efficiently in DOM by useCalendarEventResize.
 }
 
 const handleEventResizeEndLocal = (eventId: string, start: string, end: string) => {
    const duration = Math.max(15, (new Date(end).getTime() - new Date(start).getTime()) / 60000)
-   handleEventResizeEnd(eventId, start, end)
    emit('eventUpdate', eventId, start, end, duration)
 }
 </script>
@@ -196,7 +192,8 @@ const handleEventResizeEndLocal = (eventId: string, start: string, end: string) 
                         allowEventCreation &&
                         getEventsForTimeSlot(hourSlot.hour).length === 0 &&
                         !isCurrentlyResizing &&
-                        !isDragCreating
+                        !isDragCreating &&
+                        !isDraggingEvent
                      "
                      class="add-event-hover">
                      <div class="add-event-icon">
