@@ -224,16 +224,6 @@ export function useCalendarGrid(
       return classes
    }
 
-   const handleEventResizeUpdate = (eventId: string, newStart: string, newEnd: string) => {
-      const duration = Math.max(15, (new Date(newEnd).getTime() - new Date(newStart).getTime()) / 60000)
-      emit('eventUpdate', eventId, newStart, newEnd, duration)
-   }
-
-   const handleEventResizeEnd = (eventId: string, newStart: string, newEnd: string) => {
-      const duration = Math.max(15, (new Date(newEnd).getTime() - new Date(newStart).getTime()) / 60000)
-      emit('eventUpdate', eventId, newStart, newEnd, duration)
-   }
-
    const setDraggingDisabled = (disabled: boolean) => {
       isDraggingDisabled.value = disabled
    }
@@ -250,8 +240,6 @@ export function useCalendarGrid(
       handleTimeSlotMouseUp,
       getDayHeaderClass,
       getTimeSlotClass,
-      handleEventResizeUpdate,
-      handleEventResizeEnd,
       setDraggingDisabled,
       isDraggingDisabled: computed(() => isDraggingDisabled.value),
       isDragCreating,
