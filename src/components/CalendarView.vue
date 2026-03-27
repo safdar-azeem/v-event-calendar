@@ -61,19 +61,14 @@ calendarSetView(props.initialView)
 const currentTitle = computed(() => {
    if (calendarView.value === 'month') return calendarCurrentMonthName.value
    if (calendarView.value === 'week') return calendarCurrentWeekRange.value
-   return calendarSelectedDate.value
-      ? calendarSelectedDate.value.toLocaleDateString('en-US', {
-           weekday: 'long',
-           month: 'long',
-           day: 'numeric',
-           year: 'numeric',
-        })
-      : calendarCurrentDate.value.toLocaleDateString('en-US', {
-           weekday: 'long',
-           month: 'long',
-           day: 'numeric',
-           year: 'numeric',
-        })
+   
+   // Fixed: Strictly track calendarCurrentDate for day view so it doesn't get stuck on the selected today date
+   return calendarCurrentDate.value.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+   })
 })
 
 const canGoPrevious = computed(() => true)
